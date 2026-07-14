@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrega Exitosa — YJMRepair Pro</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .success-container {
+      max-width: 500px; margin: 60px auto; text-align: center; background: #fff; padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #eef2f6;
+    }
+    .check-icon {
+      font-size: 70px; margin-bottom: 20px; color: #3B6D11; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .btn-block {
+      display: block; width: 100%; padding: 15px; border-radius: 12px; font-weight: bold; text-decoration: none; margin-bottom: 15px; font-size: 14px;
+    }
+    .btn-wtp { background: #25D366; color: #fff; }
+    .btn-wtp:hover { background: #1ebd5a; }
+  </style>
+</head>
+<body style="background: #f5f5f0;">
+
+<div class="success-container">
+  <div class="check-icon">✅</div>
+  <h2 style="margin-bottom: 10px; color: #333;">¡Equipo Entregado!</h2>
+  <p style="color: #666; font-size: 14px; margin-bottom: 30px;">
+    La orden <strong><%= orden.codigo %></strong> ha sido marcada como entregada y se ha guardado en el historial de entregas.
+  </p>
+
+  <% if(linkWtp) { %>
+    <a href="<%= linkWtp %>" target="_blank" class="btn-block btn-wtp">
+      💬 Enviar Comprobante por WhatsApp al Cliente
+    </a>
+  <% } else { %>
+    <div style="background: #EAF3DE; color: #3B6D11; padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 13px;">
+      📧 El comprobante de entrega fue enviado por correo a <%= orden.cliente_email %>.
+    </div>
+  <% } %>
+
+  <a href="<%= linkCartola %>" target="_blank" class="btn-block" style="background:#f5f5f0; color:#333; border: 1px solid #ddd;">
+    📄 Ver Cartola de Entrega (Imprimir PDF)
+  </a>
+
+  <a href="/panel" class="btn-block" style="background:#185FA5; color:#fff; margin-top: 20px;">
+    Volver al Panel Principal
+  </a>
+</div>
+
+</body>
+</html>

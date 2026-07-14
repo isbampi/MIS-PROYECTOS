@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nueva Cotización</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <style>
+    .form-container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+    .form-group label { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 8px; }
+    .form-group input, .form-group textarea, .form-group select { padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: #fafafa; transition: 0.2s; }
+    .form-group input:focus, .form-group textarea:focus { border-color: #185FA5; background: #fff; outline: none; }
+  </style>
+</head>
+<body>
+<%- user.rol === 'admin' ? include('partials/sidebar-admin', { active: 'cotizaciones' }) : include('partials/sidebar', { active: 'cotizaciones' }) %>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">📄 Emitir Nueva Cotización</div>
+    <a href="/cotizaciones" class="btn-sec" style="margin-left:auto;">Volver</a>
+  </div>
+
+  <div class="content">
+
+  <div class="form-container">
+    <form action="/crear-cotizacion" method="POST">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nombre del Cliente *</label>
+          <input type="text" name="cliente_nombre" required>
+        </div>
+        <div class="form-group">
+          <label>Teléfono (con código de país ej: +569...)</label>
+          <input type="text" name="cliente_telefono" placeholder="+56912345678">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Equipo (Marca y Modelo) *</label>
+        <input type="text" name="equipo" required placeholder="Ej: iPhone 13 Pro">
+      </div>
+
+      <div class="form-group">
+        <label>Falla a cotizar o Reparación *</label>
+        <textarea name="falla_descripcion" rows="4" required placeholder="Ej: Cambio de pantalla OLED y batería original"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Valor Total Estimado ($) *</label>
+        <input type="number" name="valor_estimado" required>
+      </div>
+
+      <div style="margin-top: 30px; text-align:right;">
+        <button type="submit" class="btn-success" style="font-size: 16px; padding: 12px 30px;">Crear y Enviar Cotización</button>
+      </div>
+    </form>
+  </div>
+  </div>
+</div>
+</body>
+</html>

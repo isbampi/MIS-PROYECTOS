@@ -1,0 +1,50 @@
+======================================================================
+         YJMREPAIR PRO - DOCUMENTACIÓN TÉCNICA PARA PROFESOR
+======================================================================
+
+1. RESUMEN DEL PROYECTO
+----------------------------------------------------------------------
+YJMRepair Pro es un sistema web de gestión integral (ERP/POS) diseñado específicamente para un servicio técnico de reparación de dispositivos móviles. El sistema permite registrar clientes, administrar inventario de ventas y repuestos, controlar la caja diaria (flujo de efectivo) y generar enlaces de seguimiento público para que los clientes revisen el estado de sus equipos.
+
+
+2. ARQUITECTURA Y PATRÓN DE DISEÑO
+----------------------------------------------------------------------
+El proyecto utiliza una arquitectura Cliente-Servidor monolítica basada en JavaScript (Full-Stack).
+- Modelo-Vista-Controlador (MVC) simplificado: Las rutas en "server.js" actúan como controladores, las consultas SQL actúan como el modelo, y los archivos ".ejs" actúan como las vistas.
+
+
+3. STACK TECNOLÓGICO Y LIBRERÍAS (NODE.JS)
+----------------------------------------------------------------------
+El Backend está construido sobre Node.js utilizando el framework Express.js. A continuación, se detallan los módulos (NPM) principales y su justificación:
+
+► CORE Y ENRUTAMIENTO:
+- express: Framework principal para levantar el servidor HTTP y manejar las rutas (GET, POST) de la aplicación.
+- ejs (Embedded JavaScript): Motor de plantillas utilizado en el Frontend. Permite inyectar variables de JavaScript y datos de la base de datos directamente en el código HTML antes de enviarlo al navegador del cliente.
+
+► BASE DE DATOS Y SESIONES:
+- mysql2: Librería que permite la conexión y ejecución de consultas SQL de manera eficiente y segura con la base de datos MySQL (alojada localmente vía XAMPP).
+- express-session: Maneja las sesiones de los usuarios (login/logout).
+- express-mysql-session: Es crucial. Permite guardar las sesiones activas directamente en la base de datos MySQL. Así, si el servidor Node.js se reinicia, los usuarios no pierden su sesión y no tienen que volver a loguearse.
+
+► SEGURIDAD Y AUTENTICACIÓN:
+- bcrypt: Algoritmo de encriptación utilizado para hashear (ocultar) las contraseñas de los administradores y técnicos en la base de datos.
+- helmet: Middleware de seguridad que configura automáticamente las cabeceras HTTP (HTTP Headers) para proteger la aplicación contra vulnerabilidades comunes de la web (como ataques XSS o Clickjacking).
+- express-rate-limit: Sistema de prevención de ataques de fuerza bruta. Limita la cantidad de veces que una misma IP puede intentar iniciar sesión incorrectamente (ej: bloquea tras 5 intentos fallidos).
+- dotenv: Permite manejar variables de entorno (archivo .env) para mantener ocultas credenciales sensibles como contraseñas de correo y base de datos fuera del código fuente.
+
+► FUNCIONALIDADES ESPECÍFICAS:
+- multer: Middleware utilizado para el procesamiento de archivos. Se usa para permitir que los técnicos suban fotografías del estado físico del teléfono (Frontal, Trasera, Cargando) al momento de registrar la orden.
+- nodemailer: Módulo utilizado para conectarse a un servidor SMTP (Gmail) y enviar correos electrónicos automatizados (notificaciones de reparación) a los clientes.
+- socket.io: Preparado para comunicación bidireccional en tiempo real mediante WebSockets (útil para actualizaciones en vivo del dashboard sin recargar la página).
+
+► REDES Y CONECTIVIDAD:
+- ngrok: Como el servidor está alojado localmente en una máquina física, se utiliza un túnel inverso de Ngrok para exponer el puerto 3000 de Node.js a internet a través de un subdominio seguro (HTTPS). Esto permite que el cliente abra su ticket de seguimiento desde su casa.
+
+
+4. FLUJO DE TRABAJO TÍPICO (Ejemplo: Nueva Orden)
+----------------------------------------------------------------------
+1. El técnico llena el formulario (HTML/CSS/JS) y presiona "Guardar".
+2. Los datos y fotos se envían vía POST (usando 'multer' para las imágenes) a Express.
+3. Express limpia los datos, ejecuta un INSERT INTO a MySQL mediante 'mysql2'.
+4. Express responde renderizando la vista 'confirmacion-registro.ejs'.
+5. El sistema genera un código QR usando CSS y JS, que el navegador interpreta para imprimir automáticamente en formato térmico de 58mm.

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tienda Admin — YJMRepair Pro</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/tienda.css">
+  <style>
+  
+  </style>
+</head>
+<body>
+
+<% if (user.rol === 'admin') { %>
+  <%- include('partials/sidebar-admin', { user, active: 'telefonos' }) %>
+<% } else { %>
+  <%- include('partials/sidebar', { user, active: 'telefonos' }) %>
+<% } %>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Gestión de Inventario</div>
+    <button class="btn-primary" onclick="openModal()">+ Nuevo Teléfono</button>
+  </div>
+
+  <div class="phone-main">
+    <div class="phone-grid">
+      <% telefonos.forEach(t => { %>
+        <div class="p-card">
+          <div class="p-img">
+            <% if(t.foto) { %>
+              <img src="/uploads/<%= t.foto %>" alt="Foto">
+            <% } else { %> 
+              <span style="font-size: 50px;">📱</span> 
+            <% } %>
+          </div>
+          <div class="p-body">
+            <div class="p-title"><%= t.nombre %></div>
+            <div class="p-specs">
+              <span class="p-spec-tag">💾 <%= t.storage %></span>
+              <span class="p-spec-tag">🎨 <%= t.color %></span>
+              <span class="p-spec-tag">🔋 <%= t.bateria %></span>
+            </div>
+            <div class="p-price-row">
+              <span class="p-price">$<%= t.precio.toLocaleString('es-CL') %></span>
+              <% if(t.precio_anterior) { %>
+                <span class="p-old">$<%= t.precio_anterior.toLocaleString('es-CL') %></span>
+              <% } %>
+            </div>
+          </div>
+        <div class="p-actions">
+            <% if(t.disponible == 1) { %>
+              <form action="/vender-telefono" method="POST" style="display:contents" onsubmit="return confirm('¿Confirmar venta de este equipo?')">
+                <input type="hidden" name="id" value="<%= t.id %>">
+                <button type="submit" class="btn-edit" style="background:#97C459; color:white; border:none;">Vender</button>
+              </form>
+            <% } else { %>
+              <span style="color:#f5222d; font-weight:bold; padding:8px;">VENDIDO</span>
+            <% } %>
+
+            <a href="/editar-telefono/<%= t.id %>" class="btn-edit">Editar</a>
+            
+            <form action="/borrar-telefono" method="POST" style="display:contents" onsubmit="return confirm('¿Borrar este equipo?')">
+              <input type="hidden" name="id" value="<%= t.id %>">
+              <button type="submit" class="btn-del">Eliminar</button>
+            </form>
+          </div>    
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+
+<div id="modalAdd" class="modal">
+  <div class="modal-content">
+    <h3 style="margin-top:0; color: var(--blue);">Agregar Nuevo Equipo</h3>
+    <form action="/crear-telefono" method="POST" enctype="multipart/form-data">
+      
+      <div class="form-group">
+        <label>Nombre del Modelo</label>
+        <input type="text" name="nombre" placeholder="Ej: iPhone 12 Pro Max" required>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <div class="form-group" style="flex:1;">
+          <label>Almacenamiento</label>
+          <input type="text" name="storage" placeholder="128GB" required>
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>Color</label>
+          <input type="text" name="color" placeholder="Negro" required>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <div class="form-group" style="flex:1;">
+          <label>Precio Venta</label>
+          <input type="number" name="precio" placeholder="0" required>
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>Precio Anterior</label>
+          <input type="number" name="precio_anterior" placeholder="Opcional">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Salud de Batería</label>
+        <input type="text" name="bateria" placeholder="Ej: 88%">
+      </div>
+
+      <div class="form-group">
+        <label>Descripción corta</label>
+        <textarea name="descripcion" rows="2" placeholder="Detalles del estado físico..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Foto Principal</label>
+        <input type="file" name="foto" accept="image/*" style="border:none; padding-left:0;">
+      </div>
+
+      <div class="modal-btns">
+        <button type="button" class="btn-sec" onclick="closeModal()" style="border:none; background:#eee; padding:10px 20px; border-radius:10px; cursor:pointer;">Cancelar</button>
+        <button type="submit" class="btn-primary" style="padding:10px 20px;">Guardar Equipo</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openModal() { document.getElementById('modalAdd').style.display = 'block'; }
+  function closeModal() { document.getElementById('modalAdd').style.display = 'none'; }
+  
+  // Cerrar si hace clic fuera del modal
+  window.onclick = function(event) {
+    if (event.target == document.getElementById('modalAdd')) closeModal();
+  }
+</script>
+
+</body>
+</html>

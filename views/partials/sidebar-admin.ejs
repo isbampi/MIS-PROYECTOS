@@ -1,0 +1,181 @@
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="8" fill="#534AB7" />
+      <path d="M8 16a8 8 0 0116 0" stroke="#fff" stroke-width="2" stroke-linecap="round" />
+      <rect x="12" y="16" width="8" height="10" rx="2" fill="#fff" />
+    </svg>
+    <div>
+      <div class="logo-name" style="color:#534AB7">YJMRepair Pro</div>
+      <div class="logo-sub">Administrador</div>
+    </div>
+  </div>
+
+  <div class="nav-section-label">Panel</div>
+  <a href="/admin" class="nav-item <%= active==='dashboard' ? 'active-admin' : '' %>">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="1" y="1" width="6" height="6" rx="1" />
+      <rect x="9" y="1" width="6" height="6" rx="1" />
+      <rect x="1" y="9" width="6" height="6" rx="1" />
+      <rect x="9" y="9" width="6" height="6" rx="1" />
+    </svg>
+    Dashboard
+  </a>
+  <a href="/ordenes" class="nav-item <%= active==='historial' ? 'active-admin' : '' %>">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="2" y="2" width="12" height="12" rx="1" />
+      <path d="M5 6h6M5 9h4" />
+    </svg>
+    Historial reparaciones
+  </a>
+  <a href="/cotizaciones" class="nav-item <%= active==='cotizaciones' ? 'active-admin' : '' %>">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <polyline points="10 9 9 9 8 9" />
+    </svg>
+    Cotizaciones
+  </a>
+  <a href="/entregas" class="nav-item <%= active==='entregas' ? 'active-admin' : '' %>">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M1 8l4 4L15 2" />
+    </svg>
+    Registro de Entregas
+  </a>
+
+  <div class="nav-section-label">Finanzas y Ventas</div>
+  <a href="/admin/caja" class="nav-item <%= active==='caja' ? 'active-admin' : '' %>">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="2" y="4" width="12" height="8" rx="2" />
+      <path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
+    </svg>
+    Caja Diaria
+  </a>
+  <a href="/ventas" class="nav-item <%= active==='ventas' ? 'active-admin' : '' %>">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M1 14l4-4 4 4 6-6M9 4h6v6" />
+    </svg>
+    Ventas Realizadas
+  </a>
+
+  <div class="nav-section-label">Inventario</div>
+  <a href="/telefonos" class="nav-item <%= active==='telefonos' ? 'active-admin' : '' %>">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="4" y="1" width="8" height="14" rx="2" />
+      <circle cx="8" cy="12" r="1" />
+    </svg>
+    Teléfonos en venta
+  </a>
+  <a href="/repuestos" class="nav-item <%= active==='repuestos' ? 'active-admin' : '' %>">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="2" y="3" width="12" height="10" rx="1" />
+      <path d="M2 7h12M6 10h4" />
+    </svg>
+    Repuestos (Stock)
+  </a>
+
+
+
+  <div class="nav-section-label">Usuarios</div>
+  <a href="/admin/usuarios" class="nav-item <%= active==='usuarios' ? 'active-admin' : '' %>">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="8" cy="5" r="3" />
+      <path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" />
+    </svg>
+    Gestionar usuarios
+  </a>
+  <div class="nav-section-label">Seguridad</div>
+  <a href="/admin/dispositivos" class="nav-item <%= active==='dispositivos' ? 'active-admin' : '' %>">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="3" y="2" width="10" height="12" rx="2" />
+      <path d="M8 11h.01" />
+    </svg>
+    Dispositivos activos
+  </a>
+  <a href="/nueva-orden" class="nav-item">
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M10 8H2M6 4l-4 4 4 4" />
+    </svg>
+    Agregar nueva orden
+  </a>
+
+
+
+  <div class="sidebar-footer">
+    <div class="user-avatar" style="background:#EEEDFE;color:#534AB7">
+      <%= user.nombre.substring(0,2).toUpperCase() %>
+    </div>
+    <div>
+      <div class="user-name">
+        <%= user.nombre %>
+      </div>
+      <div class="user-role">Administrador</div>
+    </div>
+    <a href="/logout" class="logout-btn" title="Cerrar sesión">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M10 11l3-3-3-3M13 8H6" />
+      </svg>
+    </a>
+  </div>
+</nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Aplicar dark mode siempre, sin importar si hay topbar
+    const isDark = localStorage.getItem('darkMode') === 'true';
+    if(isDark) document.documentElement.classList.add('dark-mode');
+
+    const topbar = document.querySelector('.topbar');
+    if(topbar) {
+        const extraBtns = document.createElement('div');
+        extraBtns.style.cssText = "display:flex; gap:10px; margin-left:auto; align-items:center;";
+        
+        // Quitar margen automático a otros elementos para que los botones queden pegados a la derecha
+        const mlAuto = topbar.querySelector('[style*="margin-left: auto"]');
+        if(mlAuto) mlAuto.style.marginLeft = '0';
+        
+        // Boton Dark Mode
+        const btnDark = document.createElement('button');
+        btnDark.className = "btn-sec";
+        btnDark.style.cssText = "padding: 5px 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;";
+        btnDark.title = "Modo Oscuro / Claro";
+        
+        // Boton Fullscreen
+        const btnFull = document.createElement('button');
+        btnFull.className = "btn-sec";
+        btnFull.style.cssText = "padding: 5px 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;";
+        btnFull.title = "Pantalla Completa";
+
+        extraBtns.appendChild(btnFull);
+        extraBtns.appendChild(btnDark);
+        topbar.appendChild(extraBtns);
+
+        btnDark.innerHTML = isDark ? "☀️" : "🌙";
+
+        btnDark.onclick = () => {
+            document.documentElement.classList.toggle('dark-mode');
+            const darkEnabled = document.documentElement.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', darkEnabled);
+            btnDark.innerHTML = darkEnabled ? "☀️" : "🌙";
+        };
+
+        // Lógica Fullscreen
+        btnFull.innerHTML = document.fullscreenElement ? "🗗" : "⛶";
+        btnFull.onclick = () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error fullscreen: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        };
+        
+        document.addEventListener('fullscreenchange', () => {
+            btnFull.innerHTML = document.fullscreenElement ? "🗗" : "⛶";
+        });
+    }
+});
+</script>

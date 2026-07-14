@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comprobante de Entrega - <%= orden.codigo %></title>
+  <style>
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #e0e5ec; color: #333; margin: 0; padding: 20px; display: flex; justify-content: center; }
+    .cartola { background: #fff; width: 100%; max-width: 800px; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #185FA5; padding-bottom: 20px; margin-bottom: 30px; }
+    .logo h1 { margin: 0; color: #185FA5; font-size: 28px; letter-spacing: -1px; }
+    .logo p { margin: 5px 0 0; color: #666; font-size: 12px; }
+    .doc-info { text-align: right; }
+    .doc-info h2 { margin: 0; font-size: 20px; color: #555; text-transform: uppercase; }
+    .doc-info p { margin: 5px 0 0; font-size: 14px; font-weight: bold; color: #A32D2D; }
+    
+    .section { margin-bottom: 30px; }
+    .section-title { font-size: 14px; font-weight: bold; background: #f5f5f0; padding: 8px 12px; border-left: 4px solid #185FA5; margin-bottom: 15px; color: #333; text-transform: uppercase; }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .info-box { font-size: 13px; line-height: 1.6; }
+    .info-box span { color: #888; display: inline-block; width: 120px; }
+    .info-box strong { color: #111; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+    th { background: #185FA5; color: white; text-align: left; padding: 10px; }
+    td { padding: 10px; border-bottom: 1px solid #eee; }
+    .text-right { text-align: right; }
+    
+    .total-row { font-size: 18px; font-weight: bold; }
+    .total-row td { border-top: 2px solid #333; padding-top: 15px; }
+    
+    .fotos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+    .foto-box { border: 1px solid #ddd; padding: 5px; text-align: center; font-size: 10px; color: #888; }
+    .foto-box img { width: 100%; height: 100px; object-fit: cover; margin-bottom: 5px; }
+    
+    .footer { margin-top: 50px; font-size: 11px; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
+    .firmas { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 60px; margin-bottom: 40px; }
+    .firma-line { border-top: 1px solid #333; padding-top: 8px; text-align: center; font-size: 12px; font-weight: bold; width: 80%; margin: 0 auto; }
+    
+    .btn-print { position: fixed; bottom: 30px; right: 30px; background: #185FA5; color: white; border: none; padding: 15px 25px; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(24,95,165,0.4); }
+    .btn-print:hover { background: #145086; }
+    
+    @media print {
+      body { background: white; padding: 0; }
+      .cartola { box-shadow: none; padding: 0; max-width: 100%; }
+      .btn-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cartola">
+  <div class="header">
+    <div class="logo">
+      <h1>YJMRepair Pro</h1>
+      <p>Servicio Técnico Especializado en Dispositivos Móviles</p>
+    </div>
+    <div class="doc-info">
+      <h2>Comprobante de Entrega</h2>
+      <p>Orden N°: <%= orden.codigo %></p>
+      <p style="color:#666; font-size:12px; font-weight:normal;">Fecha Emisión: <%= new Date().toLocaleDateString('es-CL') %></p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-title">Datos del Cliente</div>
+      <div class="info-box">
+        <div><span>Nombre:</span> <strong><%= orden.cliente_nombre %></strong></div>
+        <div><span>Teléfono:</span> <strong><%= orden.cliente_telefono %></strong></div>
+        <div><span>Email:</span> <strong><%= orden.cliente_email || 'No registrado' %></strong></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Datos del Equipo</div>
+      <div class="info-box">
+        <div><span>Marca y Modelo:</span> <strong><%= orden.equipo_marca %> <%= orden.equipo_modelo %></strong></div>
+        <div><span>Tipo:</span> <strong><%= orden.equipo_tipo %></strong></div>
+        <div><span>Falla Inicial:</span> <strong style="color:#A32D2D;"><%= orden.falla_descripcion %></strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Detalle de Costos y Reparaciones</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Descripción</th>
+          <th class="text-right">Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Reparación Principal (Costo Estimado Base)</td>
+          <td class="text-right">$<%= Number(orden.costo_estimado).toLocaleString('es-CL') %></td>
+        </tr>
+        <% fallas.forEach(f => { %>
+          <tr>
+            <td>Adicional: <%= f.descripcion %></td>
+            <td class="text-right">$<%= Number(f.costo).toLocaleString('es-CL') %></td>
+          </tr>
+        <% }) %>
+        <tr class="total-row">
+          <td class="text-right">TOTAL PAGADO:</td>
+          <td class="text-right" style="color:#185FA5;">$<%= Number(orden.costo_total).toLocaleString('es-CL') %></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Datos de la Entrega</div>
+    <div class="grid-2">
+      <div class="info-box">
+        <div><span>Fecha de Retiro:</span> <strong><%= orden.fecha_entrega ? new Date(orden.fecha_entrega).toLocaleString('es-CL') : new Date().toLocaleString('es-CL') %></strong></div>
+        <div><span>Retirado por:</span> <strong><%= orden.quien_retira || orden.cliente_nombre %></strong></div>
+        <div><span>Método de Pago:</span> <strong><%= orden.metodo_pago || 'No especificado' %></strong></div>
+      </div>
+    </div>
+  </div>
+
+  <% if(fotos.length > 0) { %>
+    <div class="section" style="page-break-inside: avoid;">
+      <div class="section-title">Evidencia Técnica (Fotos de Avance)</div>
+      <div class="fotos-grid">
+        <% fotos.forEach(f => { %>
+          <div class="foto-box">
+            <img src="/uploads/<%= f.archivo %>" alt="Avance">
+            Avance Técnico
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+
+  <div class="firmas" style="page-break-inside: avoid;">
+    <div>
+      <div class="firma-line">Firma y Sello Servicio Técnico</div>
+    </div>
+    <div>
+      <div class="firma-line">Firma Cliente / Quien Retira<br><span style="font-size:9px; font-weight:normal;">Conforme con el trabajo realizado</span></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <strong>Garantía del Servicio:</strong> Las reparaciones cuentan con garantía limitada solo sobre los repuestos instalados o fallas directamente relacionadas con la mano de obra. No cubre daños por caídas, humedad o manipulación de terceros.<br><br>
+    ¡Gracias por confiar en YJMRepair Pro!
+  </div>
+</div>
+
+<button class="btn-print" onclick="window.print()">🖨️ Imprimir Cartola PDF</button>
+
+</body>
+</html>

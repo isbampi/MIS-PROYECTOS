@@ -1,0 +1,36 @@
+<div class="card label-preview">
+    <div id="etiqueta-imprimible" style="padding:20px; border:2px solid #000; width:300px; text-align:center; background:#fff; font-family:monospace;">
+        <h3 style="margin-bottom:10px;">TECHREPAIR PRO</h3>
+        <p><strong>Orden:</strong> <%= codigo %></p>
+        <p><strong>Cliente:</strong> <%= cliente %></p>
+        <p><strong>Equipo:</strong> <%= equipo %></p>
+        <div style="margin:15px 0;">
+            <svg id="barcode-svg"></svg>
+        </div>
+        <p style="font-size:10px;"><%= new Date().toLocaleString() %></p>
+    </div>
+    
+    <div class="actions" style="margin-top:20px;">
+        <button class="btn-primary" onclick="imprimirEtiqueta()">Imprimir Etiqueta</button>
+        <a href="/panel" class="btn-sec">Volver al Panel Principal</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script>
+    // Generar el código de barras real que el lector puede escanear
+    JsBarcode("#barcode-svg", "<%= barcodeValue %>", {
+        format: "CODE128",
+        lineColor: "#000",
+        width: 2,
+        height: 50,
+        displayValue: true
+    });
+
+    function imprimirEtiqueta() {
+        const contenido = document.getElementById('etiqueta-imprimible').innerHTML;
+        const ventana = window.open('', '_blank');
+        ventana.document.write('<html><body onload="window.print()">' + contenido + '</body></html>');
+        ventana.document.close();
+    }
+</script>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventario Repuestos — YJMRepair Pro</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/tienda.css">
+  <style>
+    .table-container {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      margin-top: 20px;
+    }
+    .modern-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .modern-table th, .modern-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    .modern-table th {
+      color: #888;
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+    .stock-badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .stock-ok { background: #EAF3DE; color: #3B6D11; }
+    .stock-low { background: #FFF3CD; color: #856404; }
+    .stock-out { background: #FDE2E2; color: #A71D2A; }
+    
+    .search-bar {
+      display: flex; gap: 10px; margin-bottom: 20px;
+    }
+    .search-input {
+      flex: 1; padding: 12px 20px; border-radius: 12px; border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+
+<% if (user.rol === 'admin') { %>
+  <%- include('partials/sidebar-admin', { user, active: 'repuestos' }) %>
+<% } else { %>
+  <%- include('partials/sidebar', { user, active: 'repuestos' }) %>
+<% } %>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Inventario de Repuestos</div>
+    <button class="btn-primary" onclick="openModal('add')">+ Nuevo Repuesto</button>
+  </div>
+
+  <div class="table-container">
+    <form class="search-bar" action="/repuestos" method="GET">
+      <input type="text" name="q" class="search-input" placeholder="Buscar por nombre o modelo compatible..." value="<%= buscar || '' %>">
+      <button type="submit" class="btn-primary">Buscar</button>
+      <% if (buscar) { %>
+        <a href="/repuestos" class="btn-sec" style="padding:12px; text-decoration:none; border:1px solid #ddd; border-radius:12px; color:#555;">Limpiar</a>
+      <% } %>
+    </form>
+
+    <table class="modern-table">
+      <thead>
+        <tr>
+          <th>Repuesto</th>
+          <th>Modelo Compatible</th>
+          <th>Stock</th>
+          <th>Precio Compra</th>
+          <th>Precio Venta</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (repuestos.length === 0) { %>
+          <tr><td colspan="6" style="text-align:center; padding:30px; color:#888;">No hay repuestos registrados</td></tr>
+        <% } %>
+        <% repuestos.forEach(r => { %>
+          <tr>
+            <td style="font-weight:600;"><%= r.nombre %></td>
+            <td><%= r.modelo_compatible || '-' %></td>
+            <td>
+              <% if(r.cantidad > 5) { %>
+                <span class="stock-badge stock-ok"><%= r.cantidad %> disp.</span>
+              <% } else if(r.cantidad > 0) { %>
+                <span class="stock-badge stock-low"><%= r.cantidad %> (bajo)</span>
+              <% } else { %>
+                <span class="stock-badge stock-out">Agotado</span>
+              <% } %>
+            </td>
+            <td>$<%= r.precio_compra ? r.precio_compra.toLocaleString('es-CL') : '0' %></td>
+            <td>$<%= r.precio_venta ? r.precio_venta.toLocaleString('es-CL') : '0' %></td>
+            <td>
+              <div style="display:flex; gap:10px;">
+                <button class="btn-edit" onclick="editModal(<%= JSON.stringify(r) %>)">Editar</button>
+                <form action="/repuestos/eliminar" method="POST" onsubmit="return confirm('¿Borrar este repuesto?')">
+                  <input type="hidden" name="id" value="<%= r.id %>">
+                  <button type="submit" class="btn-del">Eliminar</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="modalRepuesto" class="modal">
+  <div class="modal-content">
+    <h3 id="modalTitle" style="margin-top:0; color: var(--primary);">Agregar Repuesto</h3>
+    <form id="repuestoForm" action="/repuestos/crear" method="POST">
+      <input type="hidden" name="id" id="repId">
+      
+      <div class="form-group">
+        <label>Nombre del Repuesto</label>
+        <input type="text" name="nombre" id="repNombre" placeholder="Ej: Pantalla OLED, Batería..." required>
+      </div>
+
+      <div class="form-group">
+        <label>Modelo Compatible</label>
+        <input type="text" name="modelo_compatible" id="repModelo" placeholder="Ej: Galaxy A13, iPhone 11..." required>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <div class="form-group" style="flex:1;">
+          <label>Cantidad en Stock</label>
+          <input type="number" name="cantidad" id="repCantidad" placeholder="0" required>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <div class="form-group" style="flex:1;">
+          <label>Precio Compra ($)</label>
+          <input type="number" name="precio_compra" id="repCompra" placeholder="0">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>Precio Venta ($)</label>
+          <input type="number" name="precio_venta" id="repVenta" placeholder="0">
+        </div>
+      </div>
+
+      <div class="modal-btns">
+        <button type="button" class="btn-sec" onclick="closeModal()" style="border:none; background:#eee; padding:10px 20px; border-radius:10px; cursor:pointer;">Cancelar</button>
+        <button type="submit" class="btn-primary" style="padding:10px 20px;">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openModal(mode) { 
+    document.getElementById('modalRepuesto').style.display = 'block'; 
+    if (mode === 'add') {
+      document.getElementById('modalTitle').innerText = 'Agregar Repuesto';
+      document.getElementById('repuestoForm').action = '/repuestos/crear';
+      document.getElementById('repId').value = '';
+      document.getElementById('repNombre').value = '';
+      document.getElementById('repModelo').value = '';
+      document.getElementById('repCantidad').value = '';
+      document.getElementById('repCompra').value = '';
+      document.getElementById('repVenta').value = '';
+    }
+  }
+  
+  function editModal(r) {
+    document.getElementById('modalRepuesto').style.display = 'block'; 
+    document.getElementById('modalTitle').innerText = 'Editar Repuesto';
+    document.getElementById('repuestoForm').action = '/repuestos/actualizar';
+    
+    document.getElementById('repId').value = r.id;
+    document.getElementById('repNombre').value = r.nombre;
+    document.getElementById('repModelo').value = r.modelo_compatible;
+    document.getElementById('repCantidad').value = r.cantidad;
+    document.getElementById('repCompra').value = r.precio_compra;
+    document.getElementById('repVenta').value = r.precio_venta;
+  }
+
+  function closeModal() { document.getElementById('modalRepuesto').style.display = 'none'; }
+  
+  window.onclick = function(event) {
+    if (event.target == document.getElementById('modalRepuesto')) closeModal();
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seguimiento — YJMRepair Pro</title>
+  <link rel="stylesheet" href="/css/style-cliente.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div>
+      <div class="h-logo">YJMRepair Pro</div>
+      <div class="h-sub">Orden #<%= orden.codigo %></div>
+    </div>
+    <div class="live-dot"><div class="dot"></div> En vivo</div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('seguimiento', this)">Reparación</div>
+    <div class="tab" onclick="switchTab('tienda', this)">Tienda</div>
+  </div>
+
+  <div id="view-seguimiento" class="view active">
+    
+    <% fallas.forEach(f => { %>
+      <% if (f.aceptada === null) { %> 
+        <div class="card mb12 falla-alerta" style="border: 2px solid #ff9800; background: #fff3e0; margin: 15px; border-radius: 16px; padding: 16px;">
+          <div class="card-hd" style="color: #e65100; font-weight: bold; margin-bottom: 10px;">⚠️ Reparación Adicional Sugerida</div>
+          <p style="font-size: 14px; margin-bottom: 5px;">Se ha detectado un problema extra: <strong><%= f.descripcion %></strong></p>
+          <p style="font-size: 14px; margin-bottom: 15px;">Costo adicional: <strong>$<%= f.costo.toLocaleString('es-CL') %></strong></p>
+          
+          <div style="display: flex; gap: 10px;">
+            <form action="/responder-falla" method="POST" style="display: contents;">
+              <input type="hidden" name="falla_id" value="<%= f.id %>">
+              <input type="hidden" name="orden_id" value="<%= orden.id %>">
+              <input type="hidden" name="codigo" value="<%= orden.codigo %>">
+              <button type="submit" name="acepta" value="si" class="btn-success" style="flex: 1; padding: 10px; border-radius: 8px; border: none; background: #28a745; color: white; font-weight: bold; cursor: pointer;">Aceptar y Reparar</button>
+              <button type="submit" name="acepta" value="no" class="btn-sec" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ccc; background: white; cursor: pointer;">Rechazar</button>
+            </form>
+          </div>
+        </div>
+      <% } %>
+    <% }) %>
+
+    <div class="card">
+      <div class="card-hd">Estado actual</div>
+      
+      <% if (orden.estado === 'listo') { %>
+        <div style="text-align: center; padding: 10px 0; color: #28a745;">
+          <h3 style="margin: 0;">✅ ¡Hola <%= orden.cliente_nombre %>!</h3>
+          <p style="margin: 5px 0 15px; font-weight: 600;">Tu equipo está listo para retirar</p>
+        </div>
+      <% } %>
+
+      <div class="steps">
+        <div class="sline <%= ['reparacion', 'listo'].includes(orden.estado) ? 'done' : '' %>"></div>
+        <div class="step">
+          <div class="sd <%= ['taller', 'reparacion', 'listo'].includes(orden.estado) ? 'done' : 'pend' %>">
+            <%= ['taller', 'reparacion', 'listo'].includes(orden.estado) ? '✓' : '1' %>
+          </div>
+          <div class="sl">Recibido</div>
+        </div>
+        <div class="step">
+          <div class="sd <%= orden.estado === 'reparacion' ? 'active' : (orden.estado === 'listo' ? 'done' : 'pend') %>">
+            <%= orden.estado === 'listo' ? '✓' : '2' %>
+          </div>
+          <div class="sl">Reparando</div>
+        </div>
+        <div class="step">
+          <div class="sd <%= orden.estado === 'listo' ? 'active' : 'pend' %>">
+            <%= orden.estado === 'listo' ? '✓' : '3' %>
+          </div>
+          <div class="sl">Listo</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">Tu equipo</div>
+      <div class="info-row"><span class="ir-l">Modelo</span><span class="ir-v"><%= orden.equipo_marca %> <%= orden.equipo_modelo %></span></div>
+      <div class="info-row"><span class="ir-l">Falla</span><span class="ir-v"><%= orden.falla_descripcion %></span></div>
+    </div>
+
+    <div class="card">
+        <div class="card-hd">Presupuesto</div>
+        <div class="info-row"><span class="ir-l">Reparación base</span><span class="ir-v">$<%= Number(orden.costo_estimado).toLocaleString('es-CL') %></span></div>
+        <% fallas.filter(f => f.aceptada === 1).forEach(f => { %>
+            <div class="info-row"><span class="ir-l"><%= f.descripcion %></span><span class="ir-v" style="color: #d9534f;">+$<%= f.costo.toLocaleString('es-CL') %></span></div>
+        <% }) %>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+        <div class="info-row"><span class="ir-l" style="font-weight: bold; color: #333;">Total a pagar</span><span class="ir-v" style="font-size: 18px; color: var(--blue);">$<%= Number(orden.costo_total).toLocaleString('es-CL') %></span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">Evidencia y Avances</div>
+      <div class="photos-grid" id="photo-container">
+        <% fotos.forEach(foto => { %>
+          <div class="photo">
+            <img src="/uploads/<%= foto.archivo %>">
+            <span class="photo-lbl"><%= foto.tipo %></span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">Mensajes con el técnico</div>
+      <div class="chat-msgs" id="chat-msgs">
+        <% mensajes.forEach(m => { %>
+          <div class="bubble <%= m.autor === 'tecnico' ? 'bubble-tech' : 'bubble-client' %>">
+            <%= m.texto %>
+          </div>
+        <% }) %>
+      </div>
+      <form action="/enviar-mensaje" method="POST" style="display:flex; gap:8px; margin-top:15px;">
+        <input type="hidden" name="orden_id" value="<%= orden.id %>">
+        <input type="hidden" name="codigo" value="<%= orden.codigo %>">
+        <input type="hidden" name="autor" value="cliente">
+        <input type="text" name="texto" placeholder="Escribe aquí..." required style="flex:1; padding:12px; border-radius:12px; border:1px solid #ddd; outline:none;">
+        <button type="submit" style="background:var(--blue); color:white; border:none; padding:0 15px; border-radius:12px; font-weight:bold;">Enviar</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="view-tienda" class="view">
+    <div style="padding:0 15px;">
+      <% telefonos.forEach(t => { %>
+        <div class="iphone-card">
+          <div class="iphone-img-container">
+            <img src="/uploads/<%= t.foto %>">
+            <div style="position:absolute; top:10px; left:10px; background:var(--success); color:white; font-size:10px; padding:4px 8px; border-radius:6px; font-weight:bold;">EN STOCK</div>
+          </div>
+          <div class="iphone-details">
+            <h4 class="iphone-name"><%= t.nombre %></h4>
+            <div class="iphone-price">$<%= t.precio.toLocaleString('es-CL') %></div>
+            <div class="specs">
+              <span class="spec-tag">💾 <%= t.storage %></span>
+              <span class="spec-tag">🎨 <%= t.color %></span>
+              <span class="spec-tag">🔋 <%= t.bateria %></span>
+            </div>
+            <button class="iphone-btn" onclick="window.open('https://wa.me/56937886541?text=Hola! Me interesa el <%= t.nombre %>')">
+              Consultar por WhatsApp
+            </button>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const socket = io();
+  
+  // IMPORTANTE: Unirse a la sala para recibir notificaciones de esta orden
+  socket.emit('unirse_orden', '<%= orden.id %>');
+
+  function switchTab(view, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('view-' + view).classList.add('active');
+  }
+
+  // --- ESCUCHA DE EVENTOS EN TIEMPO REAL ---
+
+  // 1. Cuando cambias el estado (Igual que tus botones actuales)
+  socket.on('estado_actualizado', () => { 
+    console.log("Estado actualizado, recargando...");
+    location.reload(); 
+  });
+
+  // 2. CUANDO ENVÍAS LA COTIZACIÓN (Esto es lo que faltaba que funcionara)
+  socket.on('nueva_falla', () => {
+    console.log("Nueva cotización recibida, recargando...");
+    location.reload(); 
+  });
+
+  // 3. Cuando subes una foto nueva
+  socket.on('nueva_foto', () => { 
+    location.reload(); 
+  });
+
+  // 4. Cuando llega un mensaje nuevo
+  socket.on('nuevo_mensaje', (data) => {
+    const container = document.getElementById('chat-msgs');
+    if(container) {
+        const div = document.createElement('div');
+        div.className = `bubble ${data.autor === 'tecnico' ? 'bubble-tech' : 'bubble-client'}`;
+        div.innerText = data.texto;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+  });
+</script>
+</body>
+</html>

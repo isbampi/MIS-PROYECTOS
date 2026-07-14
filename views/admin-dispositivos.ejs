@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/responsive.css">
+    <title>Dispositivos — YJMRepair Pro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<%- include('partials/sidebar-admin', { user, active: 'dispositivos' }) %>
+
+<div class="main">
+    <div class="topbar">
+        <div class="topbar-title">Dispositivos Conectados</div>
+    </div>
+
+    <div class="content">
+        <div class="card">
+            <div class="card-hd"><span>Sesiones Activas</span></div>
+            <p style="font-size: 12px; color: #666; margin-bottom: 20px;">
+                Aquí puedes ver todas las sesiones que tienen acceso al sistema actualmente. Al "Cerrar Sesión", el dispositivo tendrá que loguearse de nuevo.
+            </p>
+            
+            <div class="table-container">
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>Rol</th>
+                            <th>ID de Sesión</th>
+                            <th>Estado</th>
+                            <th style="text-align: right;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% dispositivos.forEach(d => { %>
+                        <tr>
+                            <td>
+                                <span class="badge badge-<%= d.rol %>"><%= d.rol.toUpperCase() %></span>
+                            </td>
+                            <td><code style="font-size: 10px;"><%= d.id %></code></td>
+                            <td>
+                                <% if(d.actual) { %>
+                                    <span style="color: #3B6D11; font-weight: bold;">● Este dispositivo</span>
+                                <% } else { %>
+                                    <span style="color: #888;">● Activo</span>
+                                <% } %>
+                            </td>
+                            <td style="text-align: right;">
+                                <% if(!d.actual) { %>
+                                <form action="/admin/eliminar-sesion" method="POST" style="display:inline;">
+                                    <input type="hidden" name="session_id" value="<%= d.id %>">
+                                    <button type="submit" class="btn-danger" style="padding: 5px 10px; font-size: 11px;">Cerrar Sesión</button>
+                                </form>
+                                <% } else { %>
+                                    <span style="font-size: 11px; color: #aaa;">(Sesión actual)</span>
+                                <% } %>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

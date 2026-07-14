@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caja Diaria</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <style>
+    .form-group {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fafafa;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: #185FA5;
+      outline: none;
+      background: #fff;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .stat-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    }
+
+    .stat-title {
+      font-size: 12px;
+      color: #888;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <% if(user.rol === 'admin') { %>
+    <%- include('partials/sidebar-admin', { active: 'caja' }) %>
+  <% } else { %>
+    <%- include('partials/sidebar', { active: 'caja' }) %>
+  <% } %>
+
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title">💰 Módulo de Caja Diaria</div>
+      </div>
+
+      <div class="content">
+
+        <% if(!cajaActiva) { %>
+          <div class="card" style="text-align: center; max-width: 500px; margin: 40px auto; padding: 40px;">
+            <h3 style="color: #A32D2D;">Caja Cerrada</h3>
+            <% if(user.rol === 'admin') { %>
+              <p style="color: #666; margin-bottom: 30px;">Aún no has abierto la caja para el día de hoy.</p>
+  
+              <form action="/admin/abrir-caja" method="POST">
+                <div class="form-group" style="text-align: left;">
+                  <label>Monto Inicial en Efectivo (Sencillo) $</label>
+                  <input type="number" name="monto_inicial" required value="0"
+                    style="font-size: 24px; font-weight: bold; text-align: center;">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; font-size: 18px; margin-top: 10px;">🔓 Abrir
+                  Caja Diaria</button>
+              </form>
+            <% } else { %>
+              <p style="color: #666; margin-bottom: 30px; font-size: 16px; font-weight: bold;">Debes esperar a que el administrador abra la caja para el día de hoy.</p>
+            <% } %>
+          </div>
+          <% } else { %>
+            <% let totalIngresos=0; let totalEgresos=0; transacciones.forEach(t=> {
+              if(t.tipo === 'ingreso') totalIngresos += parseFloat(t.monto);
+              if(t.tipo === 'egreso') totalEgresos += parseFloat(t.monto);
+              });
+              let saldoActual = parseFloat(cajaActiva.monto_inicial) + totalIngresos - totalEgresos;
+              %>
+
+              <!-- Estadísticas Rápidas -->
+              <div class="grid-3" style="margin-bottom: 30px;">
+                <div class="stat-card" style="border-left: 4px solid #185FA5;">
+                  <div class="stat-title">Monto de Apertura</div>
+                  <div class="stat-value">$<%= Number(cajaActiva.monto_inicial).toLocaleString('es-CL') %>
+                  </div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #3B6D11;">
+                  <div class="stat-title">Ingresos Hoy</div>
+                  <div class="stat-value" style="color: #3B6D11;">+$<%= Number(totalIngresos).toLocaleString('es-CL') %>
+                  </div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #A32D2D;">
+                  <div class="stat-title">Egresos Hoy</div>
+                  <div class="stat-value" style="color: #A32D2D;">-$<%= Number(totalEgresos).toLocaleString('es-CL') %>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Saldo Grande y Cierre -->
+              <div class="card"
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: #f8f9fa;">
+                <div>
+                  <h3 style="margin:0; color:#555;">Saldo Total Esperado en Caja:</h3>
+                  <div style="font-size: 42px; font-weight: bold; color: #185FA5; letter-spacing: -1px;">
+                    $<%= Number(saldoActual).toLocaleString('es-CL') %>
+                  </div>
+                  <p style="margin:5px 0 0; font-size: 12px; color: #888;">Caja abierta el: <%= new
+                      Date(cajaActiva.fecha_apertura).toLocaleString('es-CL') %>
+                  </p>
+                </div>
+
+                <div style="display: flex; gap: 15px;">
+                  <% if(user.rol === 'admin') { %>
+                  <button onclick="document.getElementById('modalTransaccion').style.display='flex'" class="btn-primary"
+                    style="background: #333;">+ Registrar Movimiento</button>
+                  <% } %>
+                  <form action="/admin/cerrar-caja" method="POST" style="margin:0;">
+                    <input type="hidden" name="caja_id" value="<%= cajaActiva.id %>">
+                    <button type="submit" class="btn-primary" style="background: #A32D2D;"
+                      onclick="return confirm('¿Seguro que deseas CERRAR la caja de hoy?')">🔒 Cerrar Caja</button>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Historial de Transacciones -->
+              <div class="card" style="padding:0; overflow:hidden;">
+                <div style="padding: 15px; font-weight: 600; border-bottom: 1px solid #eee; background: #fdfdfd;">
+                  Movimientos del Día</div>
+                <div class="table-responsive">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Hora</th>
+                        <th>Concepto</th>
+                        <th>Método de Pago</th>
+                        <th>Tipo</th>
+                        <th>Monto</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% transacciones.forEach(t=> { %>
+                        <tr>
+                          <td>
+                            <%= new Date(t.fecha).toLocaleTimeString('es-CL', {hour: '2-digit' , minute:'2-digit'}) %>
+                          </td>
+                          <td><strong>
+                              <%= t.concepto %>
+                            </strong></td>
+                          <td><span
+                              style="background: #eee; padding: 2px 8px; border-radius: 10px; font-size: 11px; text-transform: capitalize;">
+                              <%= t.metodo_pago %>
+                            </span></td>
+                          <td>
+                            <% if(t.tipo==='ingreso' ) { %>
+                              <span style="color:#3B6D11; font-weight:bold;">Ingreso</span>
+                              <% } else { %>
+                                <span style="color:#A32D2D; font-weight:bold;">Egreso</span>
+                                <% } %>
+                          </td>
+                          <td
+                            style="font-weight:bold; <%= t.tipo === 'ingreso' ? 'color:#3B6D11;' : 'color:#A32D2D;' %>">
+                            <%= t.tipo==='ingreso' ? '+' : '-' %>$<%= Number(t.monto).toLocaleString('es-CL') %>
+                          </td>
+                        </tr>
+                        <% }) %>
+                          <% if(transacciones.length===0) { %>
+                            <tr>
+                              <td colspan="5" style="text-align:center; color:#888;">No hay movimientos todavía</td>
+                            </tr>
+                            <% } %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Modal Transaccion Manual -->
+              <div id="modalTransaccion" class="modal"
+                style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:999; justify-content:center; align-items:center;">
+                <div style="background:#fff; padding:25px; border-radius:12px; width:90%; max-width:400px;">
+                  <h3 style="margin-top:0;">Registrar Movimiento</h3>
+                  <form action="/admin/transaccion-manual" method="POST">
+                    <input type="hidden" name="caja_id" value="<%= cajaActiva.id %>">
+
+                    <div class="form-group">
+                      <label>Tipo de Movimiento</label>
+                      <select name="tipo" required>
+                        <option value="ingreso">Ingreso (Venta extra, etc.)</option>
+                        <option value="egreso">Egreso (Gastos, insumos, compras)</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label>Concepto (Ej: Pago Luz, Venta Carcasa)</label>
+                      <input type="text" name="concepto" required>
+                    </div>
+                    <div class="form-group">
+                      <label>Método de Pago / Origen</label>
+                      <select name="metodo_pago" required>
+                        <option value="efectivo">Efectivo</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="tarjeta">Tarjeta</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label>Monto $</label>
+                      <input type="number" name="monto" required>
+                    </div>
+                    <div style="display:flex; gap:10px; margin-top: 20px;">
+                      <button type="submit" class="btn-primary" style="flex:1;">Guardar Movimiento</button>
+                      <button type="button" onclick="document.getElementById('modalTransaccion').style.display='none'"
+                        class="btn-sec">Cancelar</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <% } %>
+      </div>
+    </div>
+</body>
+
+</html>

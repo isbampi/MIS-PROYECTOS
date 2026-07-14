@@ -1,0 +1,243 @@
+  /* ─── VARIABLES Y ESTILOS GLOBALES (TUS ESTILOS) ─── */
+    :root {
+      --blue: #185FA5;
+      --bg: #F5F7FA;
+      --radius: 16px;
+      --white: #ffffff;
+      --border: #E1E4E8;
+    }
+
+    body { 
+      background: var(--bg); 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      margin: 0; 
+    }
+
+    /* ─── DISEÑO DE LA GRILLA DE TELÉFONOS ─── */
+    .phone-main { padding: 20px; }
+    
+    /* ─── DISEÑO DE LA GRILLA CORREGIDO ─── */
+.phone-grid {
+  display: grid;
+  /* Esto obliga a que en PC se vean varias columnas y no una sola gigante */
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.p-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Obliga a que todas las tarjetas midan lo mismo */
+}
+
+/* ─── EL CONTENEDOR DE LA IMAGEN (EL FIX) ─── */
+.p-img {
+  width: 100%;
+  height: 180px; /* Altura fija para que no se estire en PC */
+  background: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  overflow: hidden; /* Corta cualquier exceso de la foto del celular */
+}
+
+.p-img img { 
+  max-width: 100%; 
+  max-height: 100%; 
+  /* 'contain' hace que la foto del celular quepa entera sin deformarse */
+  object-fit: contain; 
+}
+
+    .p-body { padding: 18px; flex-grow: 1; }
+    
+    .p-title { 
+      font-weight: bold; 
+      font-size: 1.15em; 
+      color: #15152e; 
+      margin-bottom: 6px; 
+    }
+
+    .p-specs { 
+      font-size: 0.85em; 
+      color: #86868b; 
+      margin-bottom: 12px; 
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .p-spec-tag {
+      background: #f5f5f7;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .p-price-row { margin-bottom: 10px; display: flex; align-items: baseline; }
+    
+    .p-price { 
+      font-size: 1.4em; 
+      font-weight: 700; 
+      color: var(--blue); 
+    }
+
+    .p-old { 
+      font-size: 0.95em; 
+      color: #999; 
+      text-decoration: line-through; 
+      margin-left: 10px; 
+    }
+    
+    /* ─── ACCIONES ─── */
+    .p-actions { 
+      display: flex; 
+      gap: 10px; 
+      border-top: 1px solid var(--border); 
+      padding: 12px 18px; 
+      background: #fafafa;
+    }
+
+    .btn-edit { 
+      background: #e3f2fd; 
+      color: var(--blue); 
+      border: none; 
+      padding: 10px; 
+      border-radius: 8px; 
+      flex: 2; 
+      text-align: center; 
+      text-decoration: none; 
+      font-size: 0.85em; 
+      font-weight: 600;
+    }
+
+    .btn-del { 
+      background: #fff1f0; 
+      color: #f5222d; 
+      border: 1px solid #ffa39e; 
+      padding: 10px; 
+      border-radius: 8px; 
+      flex: 1; 
+      cursor: pointer; 
+      font-size: 0.85em; 
+    }
+
+    /* ─── MODAL (ESTILO TUS CARDS) ─── */
+    .modal { 
+      display: none; 
+      position: fixed; 
+      z-index: 1000; 
+      left: 0; top: 0; 
+      width: 100%; height: 100%; 
+      background: rgba(0,0,0,0.6); 
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content { 
+      background: var(--white); 
+      margin: 50px auto; 
+      padding: 24px; 
+      width: 90%; 
+      max-width: 500px; 
+      border-radius: var(--radius); 
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .form-group { margin-bottom: 16px; }
+    
+    .form-group label { 
+      display: block; 
+      margin-bottom: 6px; 
+      font-weight: 600; 
+      font-size: 0.9em; 
+      color: #444;
+    }
+
+    .form-group input, .form-group textarea { 
+      width: 100%; 
+      padding: 12px; 
+      border: 1px solid var(--border); 
+      border-radius: 10px; 
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.1);
+    }
+
+    .modal-btns { 
+      display: flex; 
+      justify-content: flex-end; 
+      gap: 12px; 
+      margin-top: 24px; 
+    }
+    /* ─── AJUSTES RESPONSIVOS ─── */
+
+/* 1. Ajuste del contenedor principal para que no se oculte tras el sidebar */
+.main {
+  padding: 20px;
+  transition: margin 0.3s;
+}
+
+/* 2. Topbar adaptable (Título y Botón) */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* Permite que el botón baje si no hay espacio */
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+/* 3. Media Query para Teléfonos (Menos de 768px) */
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0 !important; /* Si tu sidebar usa margin-left en PC, aquí lo quitamos */
+    padding: 10px;
+  }
+
+  .topbar-title {
+    font-size: 1.5rem;
+    width: 100%; /* Título arriba */
+  }
+
+  .btn-primary {
+    width: 100%; /* Botón de ancho completo en móvil para que sea fácil de tocar */
+    padding: 15px;
+  }
+
+  .phone-grid {
+    /* Una sola columna en teléfonos pequeños */
+    grid-template-columns: 1fr; 
+    gap: 15px;
+  }
+
+  .p-actions {
+    flex-wrap: wrap; /* Los botones de la tarjeta se acomodan si son muchos */
+  }
+
+  .btn-edit, .btn-del {
+    flex: 1 1 100%; /* Botones uno sobre otro en móviles muy pequeños si es necesario */
+  }
+
+  /* Ajuste del Modal para que no se vea pequeño */
+  .modal-content {
+    width: 95%;
+    margin: 20px auto;
+    padding: 15px;
+  }
+
+  /* Ajuste de los grupos de formularios que tienen display:flex */
+  .modal-content div[style*="display:flex"] {
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+}

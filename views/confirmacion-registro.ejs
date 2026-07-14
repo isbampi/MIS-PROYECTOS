@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orden Registrada — YJMRepair Pro</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
+<body>
+<% if (user.rol === 'admin') { %>
+  <%- include('partials/sidebar-admin', { user, active: 'confimacion' }) %>
+<% } else { %>
+  <%- include('partials/sidebar', { user, active: 'confimacion' }) %>
+<% } %>
+
+<div class="main">
+  <div class="content flex-center">
+    
+    <div class="card modal-confirm animate-fade-in">
+      <div class="check-circle" style="background: #EAF3DE; color: #3B6D11; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 30px;">✓</div>
+      <h1 style="font-size: 24px; margin-bottom: 10px;">¡Orden registrada con éxito!</h1>
+      <p style="color: #666; margin-bottom: 30px;">Se ha generado la etiqueta de seguimiento para <strong><%= orden.cliente_nombre %></strong>.</p>
+      
+      <div id="printable-label" class="label-box">
+        <div class="label-header">
+          <strong style="font-size: 14px;">YJMRepair Pro</strong>
+          <span style="font-size: 12px;">#<%= orden.codigo %></span>
+        </div>
+        <div class="label-info">
+          <div class="info-row"><strong>Cliente:</strong> <%= orden.cliente_nombre %></div>
+          <div class="info-row"><strong>Equipo:</strong> <%= orden.equipo_marca %> <%= orden.equipo_modelo %></div>
+          <div class="info-row"><strong>Fecha de Ingreso:</strong> <%= new Date().toLocaleDateString('es-CL') %></div>
+        </div>
+        
+        <div class="qr-area">
+          <canvas id="qr-canvas"></canvas>
+          <div style="font-size: 8px; margin-top: 2px;">Escanea para seguimiento</div>
+        </div>
+
+        <div class="barcode-area">
+          <svg id="barcode-svg"></svg>
+          <div class="barcode-text"><%= barcodeData %></div>
+        </div>
+      </div>
+
+      <div class="modal-btns" style="display: flex; flex-direction: column; gap: 10px; margin-top: 30px;">
+        <button class="btn-primary" onclick="window.print()" style="padding: 15px; border-radius: 8px; cursor: pointer;">🖨️ Imprimir Etiqueta Térmica</button>
+        
+        <% if (linkWtp) { %>
+            <div style="margin-top: 10px; padding: 15px; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 12px; text-align: center;">
+                <p style="color: #2e7d32; font-weight: bold; margin-bottom: 10px; font-size: 14px;">📱 ¡Notifica al cliente!</p>
+                <a href="<%= linkWtp %>" target="_blank" class="btn-primary" style="background: #25D366; text-decoration: none; display: block; padding: 12px; border-radius: 8px; color: white; font-weight: bold;">
+                    Enviar WhatsApp ahora
+                </a>
+            </div>
+        <% } else { %>
+            <div style="margin-top: 10px; padding: 15px; background: #fff3e0; border: 1px solid #ffe0b2; border-radius: 12px; text-align: center;">
+                <p style="color: #ef6c00; font-weight: bold; margin-bottom: 5px;">📧 Notificación por Correo</p>
+                <p style="font-size: 12px; color: #666;">Se notificará a: <%= orden.cliente_email %></p>
+            </div>
+        <% } %>
+
+        <div style="margin-top: 5px; padding: 15px; background: #EEEDFE; border: 1px solid #534AB7; border-radius: 12px; text-align: center;">
+    <p style="color: #534AB7; font-weight: bold; margin-bottom: 10px; font-size: 14px;">🛠️ Acceso para el Técnico</p>
+    
+    <input type="text" readonly value="<%= dominio %>/t/<%= orden.codigo %>" id="linkTecnico" style="width: 100%; padding: 8px; font-size: 11px; margin-bottom: 10px; border: 1px solid #ddd; text-align: center; border-radius: 6px;">
+    
+    <div style="display: flex; gap: 5px; flex-direction: column;">
+        <button onclick="copyLink()" class="btn-primary" style="background: #534AB7; width: 100%; border: none; padding: 10px; border-radius: 8px; color: white; cursor: pointer; font-weight: bold;">
+            Copiar Link de Gestión
+        </button>
+        
+        <a href="<%= linkWtpTecnico %>" target="_blank" style="background: #25D366; color: white; text-decoration: none; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 13px;">
+            📲 Enviar a Técnico por WhatsApp
+        </a>
+    </div>
+</div>
+
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <a href="/orden/<%= orden.id %>" class="btn-sec" style="flex: 1; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; background: #eee; color: #333; font-size: 13px;">Ver Ficha</a>
+            <a href="/nueva-orden" class="btn-sec" style="flex: 1; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; background: #eee; color: #333; font-size: 13px;">Nueva Orden</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .label-box {
+    width: 250px; /* Ajustado para visualización en pantalla */
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 0 auto;
+    background: white;
+    color: black;
+    font-family: 'Courier New', Courier, monospace;
+    box-sizing: border-box;
+  }
+  
+  /* Cabecera apilada para que no se choquen los textos largos */
+  .label-header { 
+    text-align: center; 
+    border-bottom: 1px dashed #000; 
+    padding-bottom: 5px; 
+    margin-bottom: 5px; 
+  }
+  .label-header strong { display: block; font-size: 14px; }
+  .label-header span { display: block; font-size: 12px; font-weight: bold; margin-top: 2px; }
+
+  /* Info del cliente */
+  .label-info { 
+    text-align: center;
+    font-size: 11px; 
+    line-height: 1.4; 
+    word-break: break-word; 
+    padding: 2px 0;
+  }
+  .info-row { margin-bottom: 4px; }
+  .info-row strong { display: block; font-size: 10px; color: #333; text-transform: uppercase; }
+  
+  /* Área del QR centrado */
+  .qr-area {
+    text-align: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #000;
+  }
+  #qr-canvas { width: 75px !important; height: 75px !important; margin: 0 auto; display: block; }
+  
+  /* Área del código de barras */
+  .barcode-area { text-align: center; margin-top: 8px; padding-top: 5px; }
+  #barcode-svg { width: 100%; height: 35px; }
+  .barcode-text { font-size: 9px; letter-spacing: 1px; font-weight: bold; margin-top: 3px; }
+
+  .flex-center { display: flex; justify-content: center; align-items: center; min-height: 80vh; padding: 20px 0; }
+  .modal-confirm { max-width: 400px; width: 100%; text-align: center; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 20px; background: white;}
+
+  @media print {
+    body * { visibility: hidden; }
+    html, body { 
+        margin: 0; 
+        padding: 0; 
+        height: auto; 
+        overflow: hidden; /* Evita que contenido fantasma genere una segunda hoja */
+    }
+    #printable-label, #printable-label * { visibility: visible; }
+    
+    #printable-label { 
+      position: absolute; 
+      left: 0; 
+      top: 0; 
+      width: 48mm; /* Ancho imprimible estándar de una 58mm */
+      max-width: 48mm;
+      padding: 0;
+      margin: 0;
+      border: none; 
+    }
+    
+    @page { 
+        margin: 0; 
+        size: 58mm auto; /* Le dice al navegador que el papel es de 58mm de ancho y alto automático */
+    }
+  }
+</style>
+
+<script>
+  // 1. Generar QR para el Seguimiento del Cliente
+  const seguimientoUrl = window.location.origin + '/r/<%= orden.codigo %>';
+  QRCode.toCanvas(document.getElementById('qr-canvas'), seguimientoUrl, {
+    width: 70, margin: 0
+  }, function (error) { if (error) console.error(error); });
+
+  // 2. Generar Código de Barras
+  function drawBarcode(svgId, code) {
+    const svg = document.getElementById(svgId);
+    let bars = '';
+    for (let i = 0; i < code.length; i++) {
+      const charCode = code.charCodeAt(i);
+      const width = (charCode % 3) + 1;
+      const xPos = i * 7;
+      bars += `<rect x="${xPos}" y="0" width="${width}" height="35" fill="black"/>`;
+    }
+    svg.innerHTML = bars;
+  }
+  drawBarcode('barcode-svg', '<%= barcodeData %>');
+
+  // 3. Función para copiar Link del Técnico
+  function copyLink() {
+    var copyText = document.getElementById("linkTecnico");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); // Para móviles
+    navigator.clipboard.writeText(copyText.value);
+    alert("¡Link copiado! Ahora puedes enviarlo al técnico.");
+  }
+
+  // 4. Pregunta automática al cargar la página
+  window.onload = function() {
+    setTimeout(function() {
+      if(confirm("¿Deseas imprimir la etiqueta térmica ahora?")) {
+        window.print();
+      }
+    }, 500); // Pequeño retraso para asegurar que el QR y código de barras ya cargaron
+  };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,644 @@
+/* ================================================================
+   responsive.css — YJMRepair Pro
+   Agregar en TODAS las páginas con:
+   <link rel="stylesheet" href="/css/responsive.css">
+   DESPUÉS de style.css y tienda.css
+   ================================================================ */
+
+/* ── 1. VIEWPORT META (asegúrate de tenerlo en todos los <head>) ─
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   ================================================================ */
+
+
+/* ================================================================
+   2. LAYOUT PRINCIPAL — Sidebar + Main
+   ================================================================ */
+
+@media (max-width: 768px) {
+
+  /* El layout pasa de flex horizontal a vertical */
+  body:not(.login-body):not(.seguimiento-body) {
+    flex-direction: column;
+  }
+
+  /* Sidebar se convierte en barra top */
+  .sidebar {
+    width: 100% !important;
+    height: auto !important;
+    min-height: unset !important;
+    border-right: none !important;
+    border-bottom: 0.5px solid #e5e5e0;
+    overflow: hidden;
+  }
+
+  /* Logo del sidebar */
+  .sidebar-logo {
+    padding: 12px 16px;
+  }
+
+  /* Navegación del sidebar: scroll horizontal en móvil */
+  .sidebar nav,
+  .sidebar > div:not(.sidebar-logo):not(.sidebar-footer) {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 4px 8px;
+  }
+
+  .sidebar nav::-webkit-scrollbar { display: none; }
+
+  /* Etiquetas de sección del nav — ocultar en móvil */
+  .nav-section-label { display: none; }
+
+  /* Ítems del nav como pills horizontales */
+  .nav-item {
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin: 2px 3px;
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+
+  /* Footer del sidebar oculto en móvil (ya se ve en topbar) */
+  .sidebar-footer { display: none; }
+
+  /* El main ocupa todo el ancho */
+  .main {
+    width: 100% !important;
+    margin-left: 0 !important;
+    min-width: 0;
+  }
+
+  /* Topbar compacto */
+  .topbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .topbar-title {
+    font-size: 15px;
+    flex: 1 1 100%;
+  }
+
+  .topbar-search {
+    flex: 1 1 100%;
+    order: 3;
+  }
+
+  /* Botones del topbar — ancho completo */
+  .topbar .btn-primary,
+  .topbar .btn-success,
+  .topbar .btn-sec {
+    width: 100%;
+    text-align: center;
+    padding: 10px 14px;
+  }
+
+  /* Content padding */
+  .content {
+    padding: 10px;
+    gap: 10px;
+  }
+}
+
+
+/* ================================================================
+   3. GRILLAS DE ESTADÍSTICAS
+   ================================================================ */
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 400px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .stat-val {
+    font-size: 20px !important;
+  }
+}
+
+
+/* ================================================================
+   4. TABLAS — scroll horizontal en móvil
+   ================================================================ */
+
+@media (max-width: 768px) {
+
+  /* Envolver tablas en un scroll horizontal */
+  .card > .tabla,
+  .tabla-card > table,
+  .card > table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    width: 100%;
+  }
+
+  /* También la clase .data-table */
+  .data-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  /* Celdas más compactas */
+  .tabla th,
+  .tabla td,
+  table th,
+  table td {
+    padding: 10px 8px !important;
+    font-size: 12px;
+  }
+
+  /* Ocultar columnas menos importantes en pantallas pequeñas */
+  .tabla th:nth-child(4),
+  .tabla td:nth-child(4) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  /* En pantallas muy pequeñas ocultar también la columna de fecha */
+  .tabla th:nth-child(5),
+  .tabla td:nth-child(5) {
+    display: none;
+  }
+}
+
+
+/* ================================================================
+   5. GRILLAS DE DOS COLUMNAS
+   ================================================================ */
+
+@media (max-width: 768px) {
+  .two-col,
+  .two-col-grid,
+  .detail-grid,
+  .row2 {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
+  }
+}
+
+
+/* ================================================================
+   6. ACCIONES RÁPIDAS
+   ================================================================ */
+
+@media (max-width: 480px) {
+  .quick-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px;
+  }
+}
+
+
+/* ================================================================
+   7. GRILLA DE TELÉFONOS — Inventario Admin (tienda.css)
+   ================================================================ */
+
+@media (max-width: 768px) {
+  .phone-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+  }
+
+  .p-img {
+    height: 130px !important;
+  }
+
+  .p-body {
+    padding: 12px !important;
+  }
+
+  .p-title {
+    font-size: 13px !important;
+  }
+
+  .p-price {
+    font-size: 1.1em !important;
+  }
+
+  .p-actions {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .btn-edit,
+  .btn-del {
+    padding: 8px 6px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .phone-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* ================================================================
+   8. GRILLA DE TELÉFONOS — Panel técnico (phone-grid / phone-card)
+   ================================================================ */
+
+@media (max-width: 768px) {
+  .phone-grid:not(.phone-grid-tienda) {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px;
+  }
+
+  .phone-card {
+    padding: 8px;
+  }
+
+  .phone-img {
+    height: 44px;
+  }
+
+  .phone-name {
+    font-size: 11px;
+  }
+
+  .phone-price {
+    font-size: 11px;
+  }
+}
+
+
+/* ================================================================
+   9. CARDS GENÉRICAS
+   ================================================================ */
+
+@media (max-width: 768px) {
+  .card {
+    padding: 14px 12px;
+    border-radius: 10px;
+  }
+
+  .card-hd {
+    font-size: 13px;
+  }
+}
+
+
+/* ================================================================
+   10. BOTONES DE ESTADO
+   ================================================================ */
+
+@media (max-width: 480px) {
+  .status-btns {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .st-btn,
+  .btn-status {
+    width: 100%;
+    padding: 10px !important;
+  }
+}
+
+
+/* ================================================================
+   11. FOTOS / GALERÍA DE ORDEN
+   ================================================================ */
+
+@media (max-width: 768px) {
+  .photos-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px;
+  }
+
+  .img-preview-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+
+/* ================================================================
+   12. FICHA ORDEN — Info rows y costos
+   ================================================================ */
+
+@media (max-width: 480px) {
+  .info-row,
+  .cost-row {
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 0;
+  }
+
+  .ir-val,
+  .cost-val {
+    font-size: 13px;
+  }
+
+  .cost-total {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .ct-val {
+    font-size: 20px;
+  }
+}
+
+
+/* ================================================================
+   13. BOTONES DE ACCIÓN EN TABLAS (Gestionar, Editar, etc.)
+   ================================================================ */
+
+@media (max-width: 480px) {
+  /* Fila de acciones en tabla de usuarios */
+  td > div[style*="display:flex"],
+  td > .flex-actions {
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+
+  td .btn-primary,
+  td .btn-sec,
+  td .btn-danger {
+    width: 100% !important;
+    text-align: center;
+    padding: 6px 8px !important;
+    font-size: 11px !important;
+  }
+}
+
+
+/* ================================================================
+   14. RESUMEN DE CAJA — Ventas y Admin
+   ================================================================ */
+
+@media (max-width: 480px) {
+  .resumen-caja {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px;
+    padding: 18px !important;
+  }
+
+  .resumen-info h2 {
+    font-size: 26px !important;
+  }
+
+  .resumen-caja > div:last-child {
+    font-size: 28px !important;
+  }
+}
+
+
+/* ================================================================
+   15. MODAL — Formulario agregar teléfono
+   ================================================================ */
+
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95% !important;
+    margin: 20px auto !important;
+    padding: 18px !important;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  /* Filas de 2 inputs dentro del modal */
+  .modal-content > form > div[style*="display:flex"] {
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+
+  .modal-btns {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal-btns button {
+    width: 100%;
+  }
+}
+
+
+/* ================================================================
+   16. CHAT
+   ================================================================ */
+
+@media (max-width: 480px) {
+  .chat-msgs,
+  .chat-box {
+    height: 200px !important;
+  }
+
+  .bubble,
+  .msg {
+    font-size: 13px;
+    max-width: 90% !important;
+  }
+
+  .chat-inp,
+  .chat-input-container {
+    gap: 6px;
+  }
+}
+
+
+/* ================================================================
+   17. WIZARD / STEPS
+   ================================================================ */
+
+@media (max-width: 480px) {
+  .wizard-steps,
+  .status-steps,
+  .steps {
+    gap: 0;
+  }
+
+  .ws-label,
+  .ss-label,
+  .sl {
+    font-size: 9px;
+  }
+
+  .ws-dot,
+  .ss-dot,
+  .sd {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 10px !important;
+  }
+}
+
+
+/* ================================================================
+   18. CHIPS Y FILTROS (página de órdenes)
+   ================================================================ */
+
+@media (max-width: 768px) {
+  /* El buscador y filtros en columna */
+  .card form > div:first-child {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .card form > div:first-child .btn-primary {
+    width: 100%;
+    height: 40px;
+  }
+
+  /* Chips de filtro con scroll horizontal */
+  div[style*="flex-wrap: wrap"] {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .chip {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
+
+
+/* ================================================================
+   19. PÁGINA DE SEGUIMIENTO (vista cliente móvil)
+   ================================================================ */
+
+@media (max-width: 480px) {
+  .seguimiento-wrap {
+    padding: 0 0 40px;
+  }
+
+  .seg-content {
+    padding: 10px;
+    gap: 10px;
+  }
+}
+
+
+/* ================================================================
+   20. PRINT LABEL
+   ================================================================ */
+
+@media (max-width: 480px) {
+  .print-label {
+    max-width: 100%;
+    font-size: 12px;
+  }
+}
+
+
+/* ================================================================
+   21. FAB (botón flotante)
+   ================================================================ */
+
+@media (max-width: 480px) {
+  .fab {
+    bottom: 12px;
+    right: 12px;
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+}
+
+
+/* ================================================================
+   22. FORMULARIOS GENERALES
+   ================================================================ */
+
+@media (max-width: 480px) {
+  .row2,
+  .row3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    font-size: 16px; /* Evita zoom automático en iOS */
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  select,
+  textarea {
+    font-size: 16px !important; /* Previene zoom en iOS Safari */
+  }
+}
+
+
+/* ================================================================
+   23. PÁGINA DE LOGIN
+   ================================================================ */
+
+@media (max-width: 480px) {
+  .login-wrap {
+    padding: 12px;
+  }
+
+  .login-card {
+    padding: 20px 16px;
+  }
+
+  .login-logo {
+    font-size: 16px;
+  }
+}
+
+
+/* ================================================================
+   24. VENTAS — Tabla de historial
+   ================================================================ */
+
+@media (max-width: 768px) {
+  .ventas-container {
+    padding: 12px;
+  }
+
+  .tabla-card {
+    overflow-x: auto;
+  }
+
+  .tabla-card table {
+    min-width: 480px; /* Permite scroll si la tabla es muy ancha */
+  }
+}
+
+
+/* ================================================================
+   25. USUARIOS — Tabla de gestión
+   ================================================================ */
+
+@media (max-width: 768px) {
+  /* Ocultar columnas menos críticas */
+  .tabla thead tr th:nth-child(4),
+  .tabla tbody tr td:nth-child(4) {
+    display: none; /* Oculta "Creado" en móvil */
+  }
+}
+
+@media (max-width: 480px) {
+  .tabla thead tr th:nth-child(2),
+  .tabla tbody tr td:nth-child(2) {
+    display: none; /* Oculta "Email" en pantallas muy pequeñas */
+  }
+}
+
+
+/* ================================================================
+   FIN — responsive.css
+   ================================================================ */

@@ -1,0 +1,69 @@
+:root {
+  --blue: #185FA5;
+  --bg: #F5F7FA;
+  --radius: 20px; /* Un poco más redondeado estilo moderno */
+  --success: #97C459;
+}
+
+body { background: var(--bg); font-family: -apple-system, system-ui, sans-serif; margin: 0; padding-bottom: 30px; }
+
+.app { max-width: 500px; margin: 0 auto; min-height: 100vh; background: var(--bg); }
+
+/* Header */
+.header { background: var(--blue); color: white; padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; border-radius: 0 0 20px 20px; }
+.h-logo { font-size: 18px; font-weight: 800; }
+.h-sub { font-size: 12px; opacity: 0.8; }
+.live-dot { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: bold; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; }
+.dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 1.5s infinite; }
+
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+/* Tabs */
+.tabs { display: flex; background: white; margin: 15px; padding: 5px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+.tab { flex: 1; text-align: center; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600; color: #666; cursor: pointer; transition: 0.3s; }
+.tab.active { background: var(--blue); color: white; }
+
+/* Cards */
+.card { background: white; margin: 15px; padding: 20px; border-radius: var(--radius); border: 1px solid #E1E4E8; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+.card-hd { font-size: 15px; font-weight: 700; margin-bottom: 15px; color: #1a1a1a; display: flex; justify-content: space-between; align-items: center; }
+
+/* Stepper (Progreso) */
+.steps { display: flex; justify-content: space-between; align-items: center; position: relative; margin: 20px 0; }
+.step { z-index: 2; background: white; padding: 0 5px; text-align: center; flex: 1; }
+.sd { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 8px; font-size: 13px; transition: 0.3s; }
+.sd.done { background: var(--success); color: white; }
+.sd.active { background: var(--blue); color: white; box-shadow: 0 0 0 4px #E6F1FB; }
+.sd.pend { background: #f0f0f0; color: #aaa; }
+.sl { font-size: 11px; font-weight: 600; color: #888; }
+.sline { position: absolute; top: 16px; height: 2px; background: #f0f0f0; width: 100%; z-index: 1; }
+.sline.done { background: var(--success); }
+
+/* Grid de Fotos (UNIFICADO) */
+.photos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.photo { aspect-ratio: 1 / 1; border-radius: 12px; overflow: hidden; position: relative; border: 1px solid #eee; }
+.photo img { width: 100%; height: 100%; object-fit: cover; }
+.photo-lbl { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: white; font-size: 10px; padding: 5px; text-align: center; text-transform: uppercase; }
+
+/* Chat */
+.chat-msgs { height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 5px; }
+.bubble { padding: 12px 16px; border-radius: 18px; font-size: 14px; max-width: 85%; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+.bubble-tech { background: #F0F2F5; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; }
+.bubble-client { background: var(--blue); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+
+/* Tienda */
+.iphone-card { background: white; border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; border: 1px solid #eee; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.iphone-img-container { width: 100%; aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; background: white; position: relative; }
+.iphone-img-container img { max-width: 90%; max-height: 90%; object-fit: contain; }
+.iphone-details { padding: 15px; }
+.iphone-name { font-size: 16px; font-weight: 700; margin: 0; color: #333; }
+.iphone-price { font-size: 18px; font-weight: 800; color: var(--blue); margin: 5px 0; }
+.spec-tag { display: inline-block; background: #f0f2f5; padding: 4px 8px; border-radius: 6px; font-size: 11px; margin: 2px; color: #666; font-weight: 600; }
+.iphone-btn { width: 100%; padding: 12px; border-radius: 12px; border: none; background: #25D366; color: white; font-weight: 700; margin-top: 10px; cursor: pointer; }
+
+/* Otros */
+.view { display: none; }
+.view.active { display: block; }
+.info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f9f9f9; font-size: 14px; }
+.ir-l { color: #888; }
+.ir-v { font-weight: 600; color: #333; }
+.badge.b-blue { background: #E6F1FB; color: var(--blue); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; }

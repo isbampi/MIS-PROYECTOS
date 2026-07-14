@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YJMRepair Pro — Panel Principal</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <script src="https://unpkg.com/html5-qrcode"></script>
+ 
+</head>
+<body>
+
+<%- include('partials/sidebar', { user, active: 'panel' }) %>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Centro de Gestión</div>
+    <div class="search-wrap">
+      <form action="/ordenes" method="GET" style="width: 100%; display: flex;">
+        <span class="search-icon" style="margin-right: 8px;">⌕</span>
+        <input type="text" name="q" placeholder="Buscar cliente, modelo o N° de orden..." id="universal-search">
+      </form>
+    </div>
+    <div class="user-info">
+      <span class="badge badge-<%= user.rol %>"><%= user.rol.toUpperCase() %></span>
+      <span style="font-size: 12px; margin-left: 8px;"><%= user.nombre %></span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="stats-grid">
+      <div class="stat-card" onclick="location.href='/ordenes?estado=taller'">
+        <div class="stat-label">En el taller</div>
+        <div class="stat-val blue"><%= stats.en_taller || 0 %></div>
+        <div class="stat-sub">Equipos en recepción</div>
+      </div>
+      <div class="stat-card" onclick="location.href='/ordenes?estado=reparacion'">
+        <div class="stat-label">En reparación</div>
+        <div class="stat-val amber"><%= stats.en_reparacion || 0 %></div>
+        <div class="stat-sub">Técnicos trabajando</div>
+      </div>
+      <div class="stat-card" onclick="location.href='/ordenes?estado=listo'">
+        <div class="stat-label">Listos</div>
+        <div class="stat-val green"><%= stats.listos || 0 %></div>
+        <div class="stat-sub">Por notificar/entregar</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total histórico</div>
+        <div class="stat-val"><%= stats.total || 0 %></div>
+        <div class="stat-sub">Eficiencia total</div>
+      </div>
+    </div>
+
+    <div class="card mb12 scanner-active" id="scanner-container">
+      <div class="section-label" style="font-weight: 800; color: var(--blue); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+         Lector de código QR / Barras
+      </div>
+
+      <div id="reader"></div>
+      <form action="/buscar-codigo" method="GET" class="barcode-form" id="form-barcode">
+        <div class="scanner-icon-wrap">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="1.5"><path d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="8" y1="7" x2="8" y2="17"/><line x1="12" y1="7" x2="12" y2="17"/><line x1="16" y1="7" x2="16" y2="17"/></svg>
+        </div>
+        <input type="text" name="codigo" id="barcode-input" placeholder="Escanea o escribe el código..." autocomplete="off">
+        <button type="button" id="btn-camera" class="btn-primary" onclick="startScanner()" style="white-space: nowrap;">Abrir Cámara</button>
+      </form>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-hd">
+          <span>Órdenes en curso</span>
+          <a href="/ordenes" class="link-sm">Ver todas ↗</a>
+        </div>
+        <div class="order-list">
+          <% if (ordenes.length === 0) { %>
+            <div class="empty-state">No hay equipos registrados.</div>
+          <% } %>
+          <% ordenes.forEach(o => { %>
+            <a href="/orden/<%= o.id %>" class="order-row-interactive">
+              <div class="order-av"><%= o.cliente_nombre.substring(0,2).toUpperCase() %></div>
+              <div class="order-info">
+                <div class="order-name"><%= o.cliente_nombre %></div>
+                <div class="order-model"><%= o.equipo_marca %> <%= o.equipo_modelo %></div>
+              </div>
+              <div class="order-status-group">
+                <span class="badge badge-<%= o.estado %>">
+                  <% if(o.estado==='taller') { %>Ingresado
+                  <% } else if(o.estado==='reparacion') { %>Reparando
+                  <% } else if(o.estado==='listo') { %>Listo
+                  <% } else { %>Entregado<% } %>
+                </span>
+                <div class="order-date"><%= new Date(o.fecha_ingreso).toLocaleDateString('es-CL', {day:'2-digit', month:'short'}) %></div>
+              </div>
+            </a>
+          <% }) %>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd">
+          <span>Catálogo de Ventas</span>
+          <a href="/telefonos" class="link-sm">Gestionar Inventario ↗</a>
+        </div>
+
+        <div class="phone-grid-mini">
+          <% telefonos.forEach(t => { %>
+            <div class="phone-item" onclick="openZoom('<%= t.foto ? '/uploads/' + t.foto : '' %>', '<%= t.nombre %>', '<%= t.precio.toLocaleString('es-CL') %>')">
+              <div class="phone-img-box">
+                <% if(t.foto) { %>
+                  <img src="/uploads/<%= t.foto %>" alt="<%= t.nombre %>" loading="lazy">
+                <% } else { %>
+                  <div class="no-img-placeholder">SIN FOTO</div>
+                <% } %>
+              </div>
+              <div class="phone-details">
+                <div class="phone-name"><%= t.nombre %></div>
+                <div class="phone-price">$<%= t.precio.toLocaleString('es-CL') %></div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal de zoom de imagen -->
+<div id="zoom-overlay" onclick="closeZoom()">
+  <span class="zoom-close" onclick="closeZoom()">✕</span>
+  <img id="zoom-img" src="" alt="">
+  <div class="zoom-caption" id="zoom-caption"></div>
+</div>
+
+<script>
+  /* ── ZOOM MODAL ── */
+  function openZoom(src, nombre, precio) {
+    if (!src) return;
+    document.getElementById('zoom-img').src = src;
+    document.getElementById('zoom-caption').textContent = nombre + ' — $' + precio;
+    document.getElementById('zoom-overlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeZoom() {
+    document.getElementById('zoom-overlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  /* Cerrar con tecla Escape */
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeZoom();
+  });
+
+  /* Evitar que el click en la imagen cierre el modal */
+  document.getElementById('zoom-img').addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  /* ── ESCÁNER QR ── */
+  let html5QrCode;
+
+  function onScanSuccess(decodedText, decodedResult) {
+    html5QrCode.stop();
+    document.getElementById('reader').style.display = 'none';
+    const parts = decodedText.split('/');
+    const codigo = parts[parts.length - 1];
+    document.getElementById('barcode-input').value = codigo;
+    window.location.href = '/informe/' + codigo;
+  }
+
+  function startScanner() {
+    const readerDiv = document.getElementById('reader');
+    readerDiv.style.display = 'block';
+    html5QrCode = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+      .catch(err => {
+        alert("Error de cámara: " + err);
+        readerDiv.style.display = 'none';
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const barInput = document.getElementById('barcode-input');
+    barInput.focus();
+    barInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('form-barcode').submit();
+      }
+    });
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('escanear') === '1') startScanner();
+  });
+</script>
+
+</body>
+</html>

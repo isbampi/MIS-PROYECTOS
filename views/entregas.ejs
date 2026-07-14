@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Entregas — YJMRepair Pro</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/tienda.css">
+</head>
+<body>
+
+<% if (user.rol === 'admin') { %>
+  <%- include('partials/sidebar-admin', { user, active: 'entregas' }) %>
+<% } else { %>
+  <%- include('partials/sidebar', { user, active: 'entregas' }) %>
+<% } %>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">📦 Historial de Equipos Entregados</div>
+  </div>
+
+  <div class="content">
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha Entrega</th>
+            <th>Código / Cliente</th>
+            <th>Equipo</th>
+            <th>Costo Total</th>
+            <th>Método de Pago</th>
+            <th>Retirado Por</th>
+            <th>Comprobante</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(entregas.length === 0) { %>
+            <tr><td colspan="7" style="text-align:center; padding:30px; color:#888;">No hay registros de entrega todavía.</td></tr>
+          <% } %>
+          <% entregas.forEach(e => { %>
+            <tr>
+              <td style="color:#888; font-size:11px;">
+                <%= new Date(e.fecha_entrega).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' }) %>
+              </td>
+              <td>
+                <strong><%= e.codigo %></strong><br>
+                <span style="font-size:11px; color:#666;"><%= e.cliente_nombre %></span>
+              </td>
+              <td><%= e.equipo_marca %> <%= e.equipo_modelo %></td>
+              <td style="color:#185FA5; font-weight:bold;">$<%= Number(e.costo_total).toLocaleString('es-CL') %></td>
+              <td>
+                <% if(e.metodo_pago === 'Efectivo') { %> 💵 Efectivo
+                <% } else if(e.metodo_pago === 'Transferencia') { %> 🏦 Transferencia
+                <% } else { %> 💳 <%= e.metodo_pago %> <% } %>
+              </td>
+              <td><strong><%= e.quien_retira %></strong></td>
+              <td>
+                <a href="/comprobante-entrega/<%= e.orden_id %>" target="_blank" class="btn-sec" style="text-decoration:none; display:inline-block;">📄 Ver Cartola</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

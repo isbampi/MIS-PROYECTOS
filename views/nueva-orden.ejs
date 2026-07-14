@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nueva Orden — YJMRepair Pro</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    :root {
+      --primary: <%= user.rol === 'admin' ? '#534AB7' : '#185FA5' %>;
+      --success: #28a745;
+      --bg-light: #F5F7FA;
+      --text-main: #1d1d1f;
+      --text-sub: #86868b;
+    }
+
+    .reg-container { max-width: 800px; margin: 0 auto; padding: 20px; }
+    
+    .stepper {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      position: relative;
+      padding: 0 20px;
+    }
+    .stepper::before {
+      content: "";
+      position: absolute;
+      top: 20px; left: 0; right: 0;
+      height: 2px; background: #e1e4e8;
+      z-index: 1;
+    }
+    .step-item {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 100px;
+    }
+    .step-circle {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid #e1e4e8;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; color: var(--text-sub);
+      transition: all 0.3s ease;
+    }
+    .step-item.active .step-circle {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 0 0 4px rgba(83, 74, 183, 0.15);
+    }
+    .step-item.done .step-circle {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+    .step-label { font-size: 12px; font-weight: 600; color: var(--text-sub); transition: 0.3s; }
+    .step-item.active .step-label { color: var(--primary); }
+
+    .form-card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      border: 1px solid #e1e4e8;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title {
+      font-size: 18px; font-weight: 700; color: var(--text-main);
+      margin-bottom: 25px; display: flex; align-items: center; gap: 10px;
+    }
+
+    .input-wrapper { margin-bottom: 20px; }
+    .input-wrapper label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 8px; }
+    
+    .input-modern {
+      width: 100%; padding: 14px 16px;
+      border: 1px solid #d2d2d7; border-radius: 12px;
+      font-size: 15px; background: #fbfbfd;
+      box-sizing: border-box; transition: all 0.2s;
+    }
+    .input-modern:focus {
+      border-color: var(--primary); background: white; outline: none;
+      box-shadow: 0 0 0 4px rgba(83, 74, 183, 0.1);
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+    .upload-container {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 10px;
+    }
+    .upload-box {
+      border: 2px dashed #d2d2d7; border-radius: 12px;
+      padding: 15px; text-align: center; cursor: pointer;
+      transition: 0.2s; background: #fbfbfd;
+    }
+    .upload-box:hover { border-color: var(--primary); background: #f0f0f5; }
+    .upload-box span { display: block; font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
+    .upload-box input { font-size: 10px; width: 100%; }
+
+    .action-bar { display: flex; gap: 15px; margin-top: 30px; }
+    .btn-reg {
+      flex: 1; padding: 16px; border-radius: 14px; border: none;
+      font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-next { background: var(--primary); color: white; }
+    .btn-prev { background: #eee; color: #555; }
+    .btn-finish { background: var(--success); color: white; width: 100%; margin-top: 20px; }
+    .btn-reg:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .switch-group {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 15px; background: #f5f5f7; border-radius: 12px; margin-top: 20px;
+    }
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc; transition: .4s; border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+      background-color: white; transition: .4s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--success); }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    textarea { min-height: 100px; resize: none; }
+
+    @media (max-width: 600px) {
+        .stepper { padding: 0; margin-bottom: 20px; }
+        .step-item { width: 70px; }
+        .step-circle { width: 30px; height: 30px; font-size: 14px; }
+        .step-label { font-size: 10px; }
+        .form-card { padding: 15px; }
+        .grid-2 { grid-template-columns: 1fr !important; }
+        .upload-container { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</head>
+<body>
+
+<% if (user.rol === 'admin') { %>
+  <%- include('partials/sidebar-admin', { user, active: 'nueva-orden' }) %>
+<% } else { %>
+  <%- include('partials/sidebar', { user, active: 'nueva' }) %>
+<% } %>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Nueva Orden</div>
+  </div>
+  <div class="reg-container" style="padding-top: 10px;">
+    
+    <div style="margin-bottom: 30px;">
+      <h1 style="font-size: 24px; margin:0">Registro de Ingreso</h1>
+      <p style="color:var(--text-sub); font-size: 14px;">Genera una nueva orden de servicio técnica</p>
+    </div>
+
+    <div class="stepper">
+      <div class="step-item active" id="pill1">
+        <div class="step-circle">1</div>
+        <div class="step-label">Cliente</div>
+      </div>
+      <div class="step-item" id="pill2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Equipo</div>
+      </div>
+      <div class="step-item" id="pill3">
+        <div class="step-circle">3</div>
+        <div class="step-label">Finalizar</div>
+      </div>
+    </div>
+
+    <form action="/crear-orden" method="POST" enctype="multipart/form-data" id="multi-step-form">
+      
+      <div class="step-view" id="step1">
+        <div class="form-card">
+          <div class="section-title"><span>👤</span> Datos del Cliente</div>
+          <div class="input-wrapper">
+            <label>Nombre del Cliente</label>
+            <input type="text" name="cliente_nombre" placeholder="Nombre y Apellido" required class="input-modern">
+          </div>
+          <div class="grid-2">
+            <div class="input-wrapper">
+              <label>WhatsApp</label>
+              <input type="text" name="cliente_telefono" placeholder="Ej: 912345678" required class="input-modern">
+            </div>
+            <div class="input-wrapper">
+              <label id="label_email">Correo (Opcional)</label>
+              <input type="email" name="cliente_email" id="cliente_email" placeholder="cliente@correo.com" class="input-modern">
+            </div>
+          </div>
+          <div class="input-wrapper">
+            <label>Medio de Contacto Preferido</label>
+            <select name="contacto" id="contacto" class="input-modern" onchange="toggleEmailRequired()">
+              <option value="WhatsApp">Notificar por WhatsApp</option>
+              <option value="Correo">Notificar por Correo</option>
+            </select>
+          </div>
+        </div>
+        <div class="action-bar">
+          <button type="button" class="btn-reg btn-next" onclick="nextStep(2)">Continuar al Equipo →</button>
+        </div>
+      </div>
+
+      <div class="step-view" id="step2" style="display:none">
+        <div class="form-card">
+          <div class="section-title"><span>📱</span> Información Técnica</div>
+          
+          <div class="grid-2">
+            <div class="input-wrapper">
+              <label>Tipo de Equipo</label>
+              <input list="lista-tipos" name="equipo_tipo" id="equipo_tipo" 
+                     class="input-modern" placeholder="Seleccione..." 
+                     onclick="this.value=''" onchange="filtrarMarcas()">
+              <datalist id="lista-tipos"></datalist>
+            </div>
+
+            <div class="input-wrapper">
+              <label>Marca</label>
+              <input list="lista-marcas" name="equipo_marca" id="equipo_marca" 
+                     class="input-modern" placeholder="Ej: Samsung" required 
+                     onclick="this.value=''" onchange="filtrarModelos()">
+              <datalist id="lista-marcas"></datalist>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="input-wrapper">
+              <label>Modelo</label>
+              <input list="lista-modelos" name="equipo_modelo" id="equipo_modelo" 
+                     class="input-modern" placeholder="Ej: Galaxy A13" required
+                     onclick="this.value=''">
+              <datalist id="lista-modelos"></datalist>
+            </div>
+            <div class="input-wrapper">
+              <label>PIN / Contraseña</label>
+              <input type="text" name="equipo_password" placeholder="Patrón o PIN" class="input-modern">
+            </div>
+          </div>
+
+          <div class="input-wrapper">
+            <label>Detalle de la Falla</label>
+            <textarea name="falla_descripcion" class="input-modern" placeholder="Ej: Pantalla trizada, no enciende tras caída..." required></textarea>
+          </div>
+
+          <div class="section-title" style="margin-top:20px; font-size: 15px;"><span>📸</span> Fotos de Recepción</div>
+          <div class="upload-container">
+            <div class="upload-box">
+              <span>FRONTAL</span>
+              <input type="file" name="foto_frontal" required>
+            </div>
+            <div class="upload-box">
+              <span>TRASERA</span>
+              <input type="file" name="foto_trasera" required>
+            </div>
+            <div class="upload-box">
+              <span>CARGANDO (OPCIONAL)</span>
+              <input type="file" name="foto_cargando">
+            </div>
+          </div>
+        </div>
+        <div class="action-bar">
+          <button type="button" class="btn-reg btn-prev" onclick="nextStep(1)">← Volver</button>
+          <button type="button" class="btn-reg btn-next" onclick="nextStep(3)">Continuar a Costos →</button>
+        </div>
+      </div>
+
+      <div class="step-view" id="step3" style="display:none">
+        <div class="form-card">
+          <div class="section-title"><span>💰</span> Presupuesto y Notificación</div>
+          
+          <!-- ALERTA DE STOCK DE REPUESTOS -->
+          <div id="stock-alert-container" style="margin-bottom: 25px; display: none; animation: fadeIn 0.4s ease;"></div>
+
+          <div class="input-wrapper">
+            <label>Costo Estimado de Reparación</label>
+            <input type="number" name="costo_estimado" placeholder="Ej: 45000" required class="input-modern" style="font-size: 20px; font-weight: bold; color: var(--success);">
+          </div>
+          <div class="switch-group">
+            <div>
+              <div style="font-weight: 700; font-size: 14px;">Notificación Inmediata</div>
+              <div style="font-size: 11px; color: var(--text-sub);">Enviar link de seguimiento al cliente por WhatsApp</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" name="enviar_link" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="action-bar" style="flex-direction: column;">
+          <button type="submit" class="btn-reg btn-finish"><span>✅</span> Guardar e Imprimir Orden</button>
+          <button type="button" class="btn-reg btn-prev" onclick="nextStep(2)" style="width: 100%; margin-top: 10px; background: transparent; border: 1px solid #ddd;">Modificar Datos</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+let catalogoCompleto = [];
+
+// DATOS DE RESPALDO (Por si la base de datos está vacía al iniciar)
+const respaldo = [
+    {tipo: 'Teléfono', marca: 'Samsung', modelo: 'Galaxy A13'},
+    {tipo: 'Teléfono', marca: 'Apple', modelo: 'iPhone 13'},
+    {tipo: 'Teléfono', marca: 'Motorola', modelo: 'Moto G22'},
+    {tipo: 'Teléfono', marca: 'Xiaomi', modelo: 'Redmi Note 11'},
+    {tipo: 'Tablet', marca: 'Apple', modelo: 'iPad Air'},
+    {tipo: 'Notebook', marca: 'HP', modelo: 'Pavilion'}
+];
+
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const resp = await fetch('/api/catalogo-equipos');
+        const dataBD = await resp.json();
+        
+        // Si la BD tiene datos, los usamos. Si no, usamos el respaldo.
+        catalogoCompleto = dataBD.length > 0 ? dataBD : respaldo;
+        
+        cargarTipos();
+    } catch (e) { 
+        console.error("Error cargando catálogo, usando respaldo...");
+        catalogoCompleto = respaldo;
+        cargarTipos();
+    }
+});
+
+function cargarTipos() {
+    const tipos = [...new Set(catalogoCompleto.map(item => item.tipo))];
+    const dlTipos = document.getElementById('lista-tipos');
+    dlTipos.innerHTML = "";
+    tipos.forEach(t => {
+        dlTipos.innerHTML += `<option value="${t}">`;
+    });
+}
+
+function filtrarMarcas() {
+    const tipoSel = document.getElementById('equipo_tipo').value;
+    const dlMarcas = document.getElementById('lista-marcas');
+    const inputMarca = document.getElementById('equipo_marca');
+    const inputModelo = document.getElementById('equipo_modelo');
+
+    // Limpieza
+    inputMarca.value = "";
+    inputModelo.value = "";
+    dlMarcas.innerHTML = "";
+
+    const marcas = [...new Set(catalogoCompleto
+        .filter(i => i.tipo === tipoSel)
+        .map(i => i.marca))];
+
+    if(marcas.length > 0) {
+        marcas.forEach(m => dlMarcas.innerHTML += `<option value="${m}">`);
+    }
+}
+
+function filtrarModelos() {
+    const tipoSel = document.getElementById('equipo_tipo').value;
+    const marcaSel = document.getElementById('equipo_marca').value;
+    const dlModelos = document.getElementById('lista-modelos');
+    const inputModelo = document.getElementById('equipo_modelo');
+
+    inputModelo.value = "";
+    dlModelos.innerHTML = "";
+
+    const modelos = catalogoCompleto
+        .filter(i => i.tipo === tipoSel && i.marca === marcaSel)
+        .map(i => i.modelo);
+
+    if(modelos.length > 0) {
+        modelos.forEach(mod => dlModelos.innerHTML += `<option value="${mod}">`);
+    }
+}
+// Función para normalizar texto en JS (igual que en el servidor)
+function limpiarTextoJS(str) {
+    return str.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function toggleEmailRequired() {
+    const contacto = document.getElementById('contacto').value;
+    const emailInput = document.getElementById('cliente_email');
+    const labelEmail = document.getElementById('label_email');
+    if (contacto === 'Correo') {
+        emailInput.required = true;
+        labelEmail.innerHTML = 'Correo (Requerido)';
+    } else {
+        emailInput.required = false;
+        labelEmail.innerHTML = 'Correo (Opcional)';
+    }
+}
+
+function verificarDuplicado(input, tipoDato) {
+    const valorEscrito = limpiarTextoJS(input.value);
+    if (!valorEscrito) return;
+
+    // Buscamos si existe algo parecido en el catálogo que cargamos al inicio
+    const coincidencia = catalogoCompleto.find(item => {
+        const existente = limpiarTextoJS(item[tipoDato]);
+        return existente === valorEscrito && item[tipoDato] !== input.value;
+    });
+
+    if (coincidencia) {
+        // Si encontramos que ya existe "Teléfono" y el escribió "telefono"
+        const valorReal = coincidencia[tipoDato];
+        
+        // Creamos una notificación visual suave bajo el input
+        input.value = valorReal; // Se lo corregimos automáticamente
+        console.log(`Corregido: ${valorEscrito} -> ${valorReal}`);
+    }
+}
+
+// Aplicar a los inputs
+document.getElementById('equipo_tipo').addEventListener('blur', function() { 
+    verificarDuplicado(this, 'tipo'); 
+});
+document.getElementById('equipo_marca').addEventListener('blur', function() { 
+    verificarDuplicado(this, 'marca'); 
+});
+// Lógica de navegación (nextStep)
+function nextStep(n) {
+  // Encontrar el paso actual
+  let currentStep = 1;
+  if (document.getElementById('step2').style.display !== 'none') currentStep = 2;
+  else if (document.getElementById('step3').style.display !== 'none') currentStep = 3;
+
+  // Si intentamos avanzar (n > currentStep), validar primero
+  if (n > currentStep) {
+      const stepDiv = document.getElementById('step' + currentStep);
+      const requiredInputs = stepDiv.querySelectorAll('input[required], textarea[required], select[required]');
+      
+      for (let i = 0; i < requiredInputs.length; i++) {
+          if (!requiredInputs[i].value.trim()) {
+              alert("Por favor, completa todos los campos obligatorios antes de continuar.");
+              requiredInputs[i].focus();
+              return; // Detiene el avance
+          }
+      }
+  }
+
+  if (n === 3) {
+      checkStock();
+  }
+
+  document.querySelectorAll('.step-view').forEach(v => v.style.display = 'none');
+  const nextView = document.getElementById('step' + n);
+  nextView.style.display = 'block';
+  
+  document.querySelectorAll('.step-item').forEach((p, i) => {
+    const stepNum = i + 1;
+    p.classList.remove('active', 'done');
+    if (stepNum === n) { p.classList.add('active'); } 
+    else if (stepNum < n) {
+      p.classList.add('done');
+      p.querySelector('.step-circle').innerHTML = "✓";
+    } else {
+      p.querySelector('.step-circle').innerHTML = stepNum;
+    }
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Verificación de stock de repuestos para el modelo ingresado
+async function checkStock() {
+    const modelo = document.getElementById('equipo_modelo').value.trim();
+    const container = document.getElementById('stock-alert-container');
+    
+    if (!modelo) {
+        container.style.display = 'none';
+        return;
+    }
+
+    try {
+        const resp = await fetch('/api/repuestos/check?modelo=' + encodeURIComponent(modelo));
+        const data = await resp.json();
+        
+        container.style.display = 'block';
+        if (data.available && data.repuestos.length > 0) {
+            let html = `<div style="background: #EAF3DE; border: 1px solid #3B6D11; border-radius: 12px; padding: 15px; display: flex; align-items: flex-start; gap: 15px;">
+                <div style="font-size: 24px;">📦</div>
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #3B6D11;">¡Tienes repuestos disponibles!</h4>
+                    <p style="margin: 0; font-size: 13px; color: #4b821a;">Se encontraron repuestos compatibles con <strong>${modelo}</strong>:</p>
+                    <ul style="margin: 10px 0 0 0; padding-left: 20px; font-size: 13px; color: #3B6D11;">`;
+            
+            data.repuestos.forEach(r => {
+                html += `<li style="margin-bottom: 4px;">${r.nombre} (Stock: <strong>${r.cantidad}</strong>) - Precio Sugerido Venta: $${r.precio_venta ? r.precio_venta.toLocaleString('es-CL') : '0'}</li>`;
+            });
+            
+            html += `</ul></div></div>`;
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = `<div style="background: #fbfbfd; border: 1px solid #d2d2d7; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px;">
+                <div style="font-size: 24px; filter: grayscale(100%); opacity: 0.5;">📦</div>
+                <div>
+                    <h4 style="margin: 0 0 5px 0; color: #555;">Sin inventario de repuestos</h4>
+                    <p style="margin: 0; font-size: 13px; color: #888;">No tienes nada en el almacenamiento de repuestos para el modelo <strong>${modelo}</strong>.</p>
+                </div>
+            </div>`;
+        }
+    } catch (e) {
+        console.error("Error al verificar stock:", e);
+    }
+}
+</script>
+</body>
+</html>

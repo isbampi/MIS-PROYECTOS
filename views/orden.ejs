@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión Orden #<%= orden.codigo %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+<% if (user.rol === 'admin') { %>
+  <%- include('partials/sidebar-admin', { user, active: 'historial' }) %>
+<% } else { %>
+  <%- include('partials/sidebar', { user, active: 'ordenes' }) %>
+<% } %>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">ORDEN: <%= orden.codigo %></div>
+    <span class="badge status-<%= orden.estado %>">
+        <%= orden.estado.toUpperCase() %>
+    </span>
+  </div>
+
+  <div class="content">
+    <div class="two-col-grid">
+      
+      <div class="col">
+        <div class="card">
+          <div class="card-hd">⚙️ Actualizar Estado</div>
+          
+          <% if(orden.estado === 'entregado') { %>
+            <button type="button" onclick="document.getElementById('modalRetorno').style.display='flex'" class="btn-status active" style="background:#A32D2D; color:white; width:100%;">
+              ⚠️ ABRIR ORDEN ENTREGADA
+            </button>
+          <% } else { %>
+            <form action="/actualizar-estado" method="POST" class="status-btns">
+              <input type="hidden" name="orden_id" value="<%= orden.id %>">
+              <button type="submit" name="estado" value="taller" class="btn-status <%= orden.estado === 'taller' ? 'active' : '' %>">TALLER</button>
+              <button type="submit" name="estado" value="reparacion" class="btn-status <%= orden.estado === 'reparacion' ? 'active' : '' %>">REPARANDO</button>
+              <% if(orden.estado === 'garantia') { %>
+                <button type="submit" name="estado" value="garantia" class="btn-status active" style="background:#8A2BE2; color:white;">GARANTÍA</button>
+              <% } %>
+              <button type="submit" name="estado" value="listo" class="btn-status <%= orden.estado === 'listo' ? 'active' : '' %>">¡LISTO!</button>
+            </form>
+            
+            <% if(orden.estado === 'listo') { %>
+              <button type="button" onclick="document.getElementById('modalEntrega').style.display='flex'" class="btn-primary-blue" style="margin-top:15px; background:#185FA5;">📦 Registrar Entrega de Equipo</button>
+            <% } %>
+          <% } %>
+        </div>
+
+        <div class="card">
+          <div class="card-hd">👤 Ficha Técnica</div>
+          <div class="info-row"><span>Cliente</span> <strong><%= orden.cliente_nombre %></strong></div>
+          <div class="info-row"><span>WhatsApp</span> <a href="https://wa.me/<%= orden.cliente_telefono %>" target="_blank" class="wtp-link"><%= orden.cliente_telefono %> 📲</a></div>
+          <div class="info-row"><span>Equipo</span> <strong><%= orden.equipo_marca %> <%= orden.equipo_modelo %></strong></div>
+          <div class="info-row"><span>Falla</span> <strong class="text-danger"><%= orden.falla_descripcion %></strong></div>
+          
+          <div class="total-box">
+            <span>TOTAL A COBRAR</span>
+            <strong>$<%= Number(orden.costo_total).toLocaleString('es-CL') %></strong>
+          </div>
+        </div>
+
+        <div class="card">
+            <div class="card-hd">⚡ Cotizar Falla Adicional</div>
+            <form action="/agregar-falla" method="POST" class="form-falla">
+              <input type="hidden" name="orden_id" value="<%= orden.id %>">
+              <input type="text" name="descripcion" placeholder="¿Qué pieza se debe cambiar?" required>
+              <input type="number" name="costo" placeholder="Costo extra ($)" required>
+              <button type="submit" class="btn-primary-blue">Enviar Cotización al Cliente</button>
+            </form>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <div class="card-hd">📸 Galería de Avances</div>
+          <form action="/subir-foto/<%= orden.id %>" method="POST" enctype="multipart/form-data" class="upload-mini">
+            <input type="file" name="foto" required>
+            <button type="submit" class="btn-sec">Subir</button>
+          </form>
+          <div class="photos-grid">
+            <% fotos.forEach(f => { %>
+              <div class="photo-item">
+                <img src="/uploads/<%= f.archivo %>" alt="Avance" onclick="window.open(this.src)">
+                <span><%= f.tipo %></span>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd">💬 Chat en Directo</div>
+          <div class="chat-box" id="chat-box">
+            <% mensajes.forEach(m => { %>
+              <div class="msg <%= m.autor === 'tecnico' ? 'msg-right' : 'msg-left' %>">
+                <%= m.texto %>
+              </div>
+            <% }) %>
+          </div>
+          <form action="/enviar-mensaje" method="POST" class="chat-input-container">
+            <input type="hidden" name="orden_id" value="<%= orden.id %>">
+            <input type="hidden" name="autor" value="tecnico">
+            <input type="text" name="texto" placeholder="Escribe al cliente..." required>
+            <button type="submit" class="btn-send">➤</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal Entrega -->
+<div id="modalEntrega" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+  <div style="background:#fff; padding:25px; border-radius:16px; width:90%; max-width:400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+    <h3 style="margin-top:0; color:#185FA5;">📦 Registrar Entrega</h3>
+    <p style="font-size:13px; color:#666; margin-bottom:20px;">Estás a punto de marcar esta orden como entregada al cliente. Esto la quitará de los paneles activos.</p>
+    
+    <form action="/entregar-orden" method="POST">
+      <input type="hidden" name="orden_id" value="<%= orden.id %>">
+      
+      <div style="margin-bottom:15px;">
+        <label style="font-size:12px; font-weight:bold; color:#555;">¿Quién retira el equipo?</label>
+        <input type="text" name="quien_retira" placeholder="Nombre completo o 'El mismo cliente'" required class="input-modern" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-top:5px;">
+      </div>
+      
+      <div style="margin-bottom:20px;">
+        <label style="font-size:12px; font-weight:bold; color:#555;">Método de Pago Final</label>
+        <select name="metodo_pago" required class="input-modern" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-top:5px; background:#f9f9f6;">
+          <option value="Efectivo">Efectivo</option>
+          <option value="Transferencia">Transferencia Bancaria</option>
+          <option value="Tarjeta">Tarjeta (Débito/Crédito)</option>
+          <option value="Garantía">Cobertura por Garantía (Costo $0)</option>
+        </select>
+      </div>
+      
+      <div style="display:flex; gap:10px;">
+        <button type="button" onclick="document.getElementById('modalEntrega').style.display='none'" class="btn-sec" style="flex:1; padding:12px; text-align:center;">Cancelar</button>
+        <button type="submit" class="btn-success" style="flex:1; padding:12px; background:#3B6D11; border:none; color:white; border-radius:8px; font-weight:bold; cursor:pointer;">Confirmar Entrega</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Retorno de Equipo Entregado -->
+<div id="modalRetorno" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:999; justify-content:center; align-items:center;">
+  <div style="background:#fff; padding:25px; border-radius:16px; width:90%; max-width:450px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+    <h3 style="margin-top:0; color:#A32D2D;">⚠️ Equipo ya Entregado</h3>
+    <p style="font-size:14px; color:#555; margin-bottom:20px;">
+      Este equipo ya figura como entregado. ¿Por qué motivo necesitas volver a abrir la orden en las mesas de trabajo?
+    </p>
+    
+    <div style="display:flex; flex-direction:column; gap:15px;">
+      
+      <form action="/revertir-entrega" method="POST" style="margin:0;">
+        <input type="hidden" name="orden_id" value="<%= orden.id %>">
+        <button type="submit" class="btn-sec" style="width:100%; text-align:left; padding:15px; border:1px solid #ccc; background:#f9f9f9; cursor:pointer;">
+          <strong style="color:#A32D2D;">🚫 Me equivoqué al entregarlo</strong><br>
+          <span style="font-size:12px; color:#666; font-weight:normal;">Borrará el registro de entrega anterior y la orden volverá a estado TALLER como si nada hubiera pasado.</span>
+        </button>
+      </form>
+
+      <form action="/ingreso-garantia" method="POST" style="margin:0;">
+        <input type="hidden" name="orden_id" value="<%= orden.id %>">
+        <button type="submit" class="btn-sec" style="width:100%; text-align:left; padding:15px; border:1px solid #8A2BE2; background:#f8f2ff; cursor:pointer;">
+          <strong style="color:#8A2BE2;">🛡️ El cliente volvió por Garantía</strong><br>
+          <span style="font-size:12px; color:#666; font-weight:normal;">Mantiene la historia de la primera entrega intacta, y pone la orden en estado GARANTÍA para revisarla nuevamente.</span>
+        </button>
+      </form>
+
+      <button type="button" onclick="document.getElementById('modalRetorno').style.display='none'" class="btn-sec" style="width:100%; padding:12px; text-align:center; margin-top:10px;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const socket = io();
+  socket.emit('unirse_orden', '<%= orden.id %>');
+  const chatBox = document.getElementById('chat-box');
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  socket.on('nuevo_mensaje', (data) => {
+    const div = document.createElement('div');
+    div.className = data.autor === 'tecnico' ? 'msg msg-right' : 'msg msg-left';
+    div.innerText = data.texto;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  });
+
+  socket.on('estado_actualizado', () => { location.reload(); });
+  socket.on('falla_respondida', () => { location.reload(); });
+</script>
+<style>
+    /* Añade esto a panel.ejs o style.css */
+    @media (max-width: 480px) {
+        .stat-card {
+            padding: 10px;
+        }
+        .stat-val {
+            font-size: 18px; /* Números más pequeños para que no se corten */
+        }
+        .scanner-active .barcode-form {
+            flex-direction: column;
+        }
+        .barcode-form button {
+            width: 100%;
+        }
+        .order-row-interactive {
+            padding: 10px 5px;
+        }
+        .order-info {
+            max-width: 120px; /* Evita que el texto largo rompa el diseño */
+        }
+    }
+</style>
+</body>
+</html>

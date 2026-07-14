@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/responsive.css">
+  <title>YJMRepair — Usuarios</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('partials/sidebar-admin', { user, active: 'usuarios' }) %>
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Gestionar usuarios</div>
+    <a href="/admin/usuarios/nuevo" class="btn-primary">+ Nuevo usuario</a>
+  </div>
+  <div class="content">
+    <% if(typeof msg !== 'undefined') { %>
+      <div class="alert-success"><%= msg %></div>
+    <% } %>
+    <div class="card">
+      <table class="tabla">
+        <thead>
+          <tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Creado</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          <% usuarios.forEach(u => { %>
+          <tr>
+            <td><%= u.nombre %></td>
+            <td><%= u.email %></td>
+            <td><span class="badge <%= u.rol==='admin' ? 'badge-reparacion' : 'badge-taller' %>"><%= u.rol %></span></td>
+            <td style="font-size:11px;color:#888"><%= new Date(u.creado_en).toLocaleDateString('es-CL') %></td>
+            <td style="display:flex;gap:6px">
+              <a href="/admin/usuarios/editar/<%= u.id %>" class="btn-sec" style="padding:3px 10px;font-size:11px">Editar</a>
+              <a href="/admin/usuarios/password/<%= u.id %>" class="btn-primary" style="padding:3px 10px;font-size:11px">Cambiar clave</a>
+              <% if(u.id !== user.id) { %>
+              <form action="/admin/usuarios/borrar" method="POST" onsubmit="return confirm('¿Eliminar usuario?')">
+                <input type="hidden" name="id" value="<%= u.id %>">
+                <button type="submit" class="btn-danger" style="padding:3px 10px;font-size:11px">Eliminar</button>
+              </form>
+              <% } %>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

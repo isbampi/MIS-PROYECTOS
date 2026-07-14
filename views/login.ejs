@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YJMRepair Pro — Iniciar sesión</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="login-body">
+
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#185FA5"/><path d="M8 16a8 8 0 0116 0" stroke="#fff" stroke-width="2" stroke-linecap="round"/><rect x="12" y="16" width="8" height="10" rx="2" fill="#fff"/></svg>
+        <span>YJMRepair Pro</span>
+      </div>
+      <p class="login-sub">Sistema de gestión de reparaciones</p>
+
+      <% if (typeof error !== 'undefined') { %>
+        <div class="alert-error"><%= error %></div>
+      <% } %>
+
+      <form action="/empezar" method="POST" class="login-form">
+        <div class="field">
+          <label>Correo electrónico</label>
+          <input type="email" name="email" placeholder="admin@yjmrepair.cl" required autofocus>
+        </div>
+        <div class="field">
+          <label>Contraseña</label>
+          <input type="password" name="password" placeholder="123" required>
+        </div>
+        <button type="submit" class="btn-primary w100">Iniciar sesión</button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

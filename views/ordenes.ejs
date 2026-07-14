@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/responsive.css">
+  <title>Órdenes — YJMRepair Pro</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .chip { padding: 7px 15px; border-radius: 20px; background: #f0f0ea; color: #666; font-size: 11px; font-weight: 700; text-decoration: none; display: inline-block; transition: 0.2s; }
+    
+    /* Colores dinámicos */
+    .chip.active-todos { background: #185FA5; color: white; }
+    .chip.active-taller { background: #185FA5; color: white; }
+    .chip.active-reparacion { background: #854F0B; color: white; }
+    .chip.active-listo { background: #3B6D11; color: white; }
+    .chip.active-entregado { background: #666; color: white; }
+
+    /* Contenedor de búsqueda corregido */
+    .search-box-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+    .search-box-wrapper span {
+      position: absolute;
+      left: 15px;
+      color: #888;
+      font-size: 16px;
+    }
+    .search-box-wrapper input {
+      padding-left: 45px !important;
+      width: 100%;
+      height: 44px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #f9f9f9;
+    }
+
+    /* Estilo para el mensaje de No Resultados */
+    .no-results {
+      padding: 60px 20px;
+      text-align: center;
+      color: #888;
+    }
+    .no-results-icon {
+      font-size: 40px;
+      margin-bottom: 15px;
+      display: block;
+    }
+    .btn-reset {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #185FA5;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<% if (user.rol === 'admin') { %>
+  <%- include('partials/sidebar-admin', { user, active: 'historial' }) %>
+<% } else { %>
+  <%- include('partials/sidebar', { user, active: 'ordenes' }) %>
+<% } %>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Historial de Órdenes</div>
+    <a href="/nueva-orden" class="btn-success" style="margin-left: auto;">+ Nuevo registro</a>
+  </div>
+
+  <div class="content">
+    
+    <div class="card mb12" style="padding: 20px;">
+      <form action="/ordenes" method="GET" style="display: flex; flex-direction: column; gap: 15px;">
+        
+        <div style="display: flex; gap: 10px;">
+          <div class="search-box-wrapper">
+            <span>🔍</span>
+            <input type="text" name="q" value="<%= buscar %>" placeholder="Buscar cliente, modelo o código...">
+          </div>
+          <button type="submit" class="btn-primary" style="height: 44px; padding: 0 25px;">Buscar</button>
+        </div>
+
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 15px;">
+          <span style="font-size: 11px; font-weight: 800; color: #aaa;">FILTRAR POR:</span>
+          
+          <a href="/ordenes" class="chip <%= !buscar ? 'active-todos' : '' %>">Todos</a>
+          <a href="/ordenes?q=taller" class="chip <%= buscar === 'taller' ? 'active-taller' : '' %>">En taller</a>
+          <a href="/ordenes?q=reparacion" class="chip <%= buscar === 'reparacion' ? 'active-reparacion' : '' %>">Reparando</a>
+          <a href="/ordenes?q=listo" class="chip <%= buscar === 'listo' ? 'active-listo' : '' %>">Listos</a>
+          <a href="/ordenes?q=entregado" class="chip <%= buscar === 'entregado' ? 'active-entregado' : '' %>">Entregados</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="card" style="padding: 0; overflow-x: auto; -webkit-overflow-scrolling: touch;">
+      <% if (ordenes.length > 0) { %>
+        <table class="tabla">
+          <thead>
+            <tr style="background: #f8f9fa;">
+              <th style="padding: 15px;">Código</th>
+              <th>Cliente</th>
+              <th>Equipo</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th style="text-align: right; padding-right: 20px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% ordenes.forEach(o => { %>
+            <tr class="order-row-hover">
+              <td style="padding: 15px;"><code><%= o.codigo %></code></td>
+              <td><strong><%= o.cliente_nombre %></strong></td>
+              <td><%= o.equipo_marca %> <%= o.equipo_modelo %></td>
+              <td>
+                <span class="badge badge-<%= o.estado %>">
+                  <% if(o.estado==='taller'){%>En taller<%}
+                     else if(o.estado==='reparacion'){%>En reparación<%}
+                     else if(o.estado==='listo'){%>Listo para entrega<%}
+                     else {%>Entregado<%}%>
+                </span>
+              </td>
+              <td><%= new Date(o.fecha_ingreso).toLocaleDateString('es-CL') %></td>
+              <td style="text-align: right; padding-right: 20px;">
+                <a href="/orden/<%= o.id %>" class="btn-sec" style="border-radius: 20px;">Gestionar →</a>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <div class="no-results">
+          <span class="no-results-icon">🔎</span>
+          <p>No se encontraron resultados para <strong>"<%= buscar %>"</strong></p>
+          <a href="/ordenes" class="btn-reset">Ver todo el historial</a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+<style>
+    /* Añade esto a panel.ejs o style.css */
+    @media (max-width: 480px) {
+        .stat-card {
+            padding: 10px;
+        }
+        .stat-val {
+            font-size: 18px; /* Números más pequeños para que no se corten */
+        }
+        .scanner-active .barcode-form {
+            flex-direction: column;
+        }
+        .barcode-form button {
+            width: 100%;
+        }
+        .order-row-interactive {
+            padding: 10px 5px;
+        }
+        .order-info {
+            max-width: 120px; /* Evita que el texto largo rompa el diseño */
+        }
+    }
+</style>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/responsive.css">
+  <title>Historial de Ventas — YJMRepair Pro</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .ventas-container { padding: 20px; }
+    
+    /* Card de Resumen */
+    .resumen-caja {
+        background: var(--blue);
+        color: rgb(7, 10, 66);
+        padding: 25px;
+        border-radius: 16px;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 15px rgba(24, 95, 165, 0.2);
+    }
+    .resumen-info h2 { margin: 0; font-size: 32px; }
+    .resumen-info p { margin: 5px 0 0; opacity: 0.8; font-size: 14px; }
+
+    /* Tabla de Ventas */
+    .tabla-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e1e4e8;
+        overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; border-bottom: 1px solid #eee; }
+    td { padding: 15px; border-bottom: 1px solid #f9f9f9; font-size: 14px; color: #333; }
+    
+    .badge-vendedor {
+        background: #e3f2fd;
+        color: #185FA5;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .precio-venda { font-weight: 700; color: #2e7d32; }
+  </style>
+</head>
+<body>
+
+<%- include('partials/sidebar-admin', { user, active: 'ventas' }) %>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Reporte de Ventas</div>
+  </div>
+
+  <div class="ventas-container">
+    
+    <div class="resumen-caja">
+        <div class="resumen-info">
+            <p>Total Recaudado en Equipos</p>
+            <h2>$<%= total.toLocaleString('es-CL') %></h2>
+        </div>
+        <div style="font-size: 40px; opacity: 0.5;">💰</div>
+    </div>
+
+    <div class="tabla-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Equipo</th>
+                    <th>Precio Venta</th>
+                    <th>Vendedor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if(ventas.length === 0) { %>
+                    <tr>
+                        <td colspan="4" style="text-align:center; padding:40px; color:#999;">No hay ventas registradas todavía.</td>
+                    </tr>
+                <% } %>
+                
+                <% ventas.forEach(v => { %>
+                    <tr>
+                        <td><%= new Date(v.fecha_venta).toLocaleString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></td>
+                        <td style="font-weight: 500;"><%= v.nombre_equipo %></td>
+                        <td class="precio-venda">$<%= v.precio_venta.toLocaleString('es-CL') %></td>
+                        <td><span class="badge-vendedor"><%= v.vendedor %></span></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

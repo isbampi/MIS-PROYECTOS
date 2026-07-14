@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cotizaciones</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+<%- user.rol === 'admin' ? include('partials/sidebar-admin', { active: 'cotizaciones' }) : include('partials/sidebar', { active: 'cotizaciones' }) %>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">📄 Cotizaciones Emitidas</div>
+    <div style="display:flex; gap:10px; margin-left: auto;">
+      <form action="/cotizaciones" method="GET" style="display:flex; gap:10px;">
+        <input type="text" name="q" placeholder="Buscar..." value="<%= buscar %>" style="border:1px solid #ddd; border-radius:8px; padding:0 15px;">
+        <button type="submit" class="btn-primary" style="padding: 10px 15px;">Buscar</button>
+      </form>
+      <a href="/nueva-cotizacion" class="btn-success">➕ Nueva Cotización</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+  <% if(cotizaciones.length === 0) { %>
+    <div class="empty-state card" style="text-align: center; padding: 40px;">
+      <h3>No hay cotizaciones</h3>
+      <p>Aún no has emitido ninguna cotización o no coincide con tu búsqueda.</p>
+    </div>
+  <% } else { %>
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Equipo</th>
+            <th>Valor</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% cotizaciones.forEach(c => { %>
+            <tr>
+              <td><strong><%= c.codigo %></strong></td>
+              <td><%= new Date(c.fecha_emision).toLocaleDateString('es-CL') %></td>
+              <td><%= c.cliente_nombre %></td>
+              <td><%= c.equipo %></td>
+              <td style="color:#185FA5; font-weight:bold;">$<%= Number(c.valor_estimado).toLocaleString('es-CL') %></td>
+              <td>
+                <a href="/presupuesto/<%= c.codigo %>" target="_blank" class="btn-sec" style="font-size:12px; padding:6px 12px;">📄 Ver Presupuesto</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+  </div>
+</div>
+</body>
+</html>

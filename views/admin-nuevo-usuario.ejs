@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/responsive.css">
+  <title>YJMRepair — Nuevo usuario</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<%- include('partials/sidebar-admin', { user, active: 'usuarios' }) %>
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Nuevo usuario</div>
+  </div>
+  <div class="content">
+    <div class="card" style="max-width:420px">
+      <form action="/admin/usuarios/crear" method="POST" style="display:flex;flex-direction:column;gap:14px">
+        <div class="field">
+          <label>Nombre completo</label>
+          <input type="text" name="nombre" placeholder="Ej: Juan Pérez" required>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" name="email" placeholder="juan@yjmrepair.cl" required>
+        </div>
+        <div class="field">
+          <label>Contraseña</label>
+          <input type="password" name="password" placeholder="Mínimo 6 caracteres" required minlength="6">
+        </div>
+        <div class="field">
+          <label>Rol</label>
+          <select name="rol">
+            <option value="tecnico">Técnico</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a href="/admin/usuarios" class="btn-sec">Cancelar</a>
+          <button type="submit" class="btn-primary">Crear usuario</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

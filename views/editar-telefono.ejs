@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/responsive.css">
+  <title>Editar Equipo — YJMRepair Pro</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* Usamos tus estilos originales */
+    .edit-box { background: white; max-width: 600px; margin: 30px auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #444; }
+    .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
+    .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+    
+    /* Ajuste dinámico de color según el rol */
+    :root {
+      --primary-color: <%= user.rol === 'admin' ? '#534AB7' : '#185FA5' %>;
+    }
+    .btn-primary { background-color: var(--primary-color) !important; border: none; color: white; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<% if (user.rol === 'admin') { %>
+  <%- include('partials/sidebar-admin', { user, active: 'telefonos' }) %>
+<% } else { %>
+  <%- include('partials/sidebar', { user, active: 'telefonos' }) %>
+<% } %>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Editar: <%= telefono.nombre %></div>
+  </div>
+
+  <div class="edit-box">
+    <form action="/actualizar-telefono" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="id" value="<%= telefono.id %>">
+      
+      <div class="form-group">
+        <label>Nombre del Modelo</label>
+        <input type="text" name="nombre" value="<%= telefono.nombre %>" required>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <div class="form-group" style="flex:1;">
+          <label>Precio Actual</label>
+          <input type="number" name="precio" value="<%= telefono.precio %>" required>
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>Precio Anterior</label>
+          <input type="number" name="precio_anterior" value="<%= telefono.precio_anterior %>">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <div class="form-group" style="flex:1;">
+          <label>Almacenamiento</label>
+          <input type="text" name="storage" value="<%= telefono.storage %>">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>Color</label>
+          <input type="text" name="color" value="<%= telefono.color %>">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Batería</label>
+        <input type="text" name="bateria" value="<%= telefono.bateria %>">
+      </div>
+
+      <div class="form-group">
+        <label>Descripción Corta</label>
+        <textarea name="descripcion" rows="4"><%= telefono.descripcion %></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Foto Nueva (Opcional)</label>
+        <input type="file" name="foto" accept="image/*">
+      </div>
+
+      <div class="btn-row">
+        <button type="submit" class="btn-primary" style="flex:2;">Actualizar Información</button>
+        <a href="/telefonos" class="btn-sec" style="flex:1; text-align:center; text-decoration:none; padding:12px; border: 1px solid #ddd; border-radius: 8px; color: #666;">Volver</a>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

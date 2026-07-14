@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YJMRepair Pro — Administrador</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<%- include('partials/sidebar-admin', { user, active: 'dashboard' }) %>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Dashboard administrador</div>
+    <span style="font-size:11px;color:#888">Bienvenido, <%= user.nombre %></span>
+    <a href="/logout" class="btn-danger" style="margin-left:auto">Cerrar sesión</a>
+  </div>
+
+  <div class="content">
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total órdenes</div>
+        <div class="stat-val blue"><%= stats.total || 0 %></div>
+        <div class="stat-sub">históricas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Este mes</div>
+        <div class="stat-val green"><%= stats.este_mes || 0 %></div>
+        <div class="stat-sub">reparaciones</div>
+      </div>
+          <div class="stat-card">
+            <div class="stat-label">Ventas de Equipos</div>
+            <div class="stat-val green">$<%= Number(stats.ingresos_ventas || 0).toLocaleString('es-CL') %></div>
+            <div class="stat-sub">Dinero real en caja</div>
+          </div>
+      <div class="stat-card">
+        <div class="stat-label">Equipos en venta</div>
+        <div class="stat-val"><%= stats.en_venta || 0 %></div>
+        <div class="stat-sub">disponibles</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-hd"><span>Reparaciones por mes</span></div>
+        <div style="padding:15px; position: relative; height:250px;">
+          <div id="data-meses" 
+               data-labels='<%= JSON.stringify(mesesLabels || []) %>' 
+               data-values='<%= JSON.stringify(mesesData || []) %>'></div>
+          <canvas id="chart-meses"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><span>Fallas más frecuentes</span></div>
+        <div style="padding:15px; position: relative; height:250px;">
+          <div id="data-fallas" 
+               data-labels='<%= JSON.stringify(fallasLabels || []) %>' 
+               data-values='<%= JSON.stringify(fallasData || []) %>'></div>
+          <canvas id="chart-fallas"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">
+        <span>Historial de reparaciones</span>
+        <form action="/admin/historial" method="GET" style="display:flex;gap:8px;align-items:center">
+          <input type="text" name="q" value="<%= buscar %>" placeholder="Buscar cliente, modelo…" style="padding:5px 10px;border:0.5px solid #ddd;border-radius:8px;font-size:12px;width:200px">
+          <button type="submit" class="btn-primary" style="padding:5px 12px">Buscar</button>
+        </form>
+      </div>
+      <div style="overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 10px;">
+      <table class="tabla" style="min-width: 800px;">
+          <tr>
+            <th>Orden</th>
+            <th>Cliente</th>
+            <th>Equipo</th>
+            <th>Falla</th>
+            <th>Costo</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% ordenes.forEach(o => { %>
+          <tr>
+            <td><code><%= o.codigo %></code></td>
+            <td><%= o.cliente_nombre %></td>
+            <td><%= o.equipo_marca %> <%= o.equipo_modelo %></td>
+            <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%= o.falla_descripcion %></td>
+            <td>$<%= Number(o.costo_total).toLocaleString('es-CL') %></td>
+            <td>
+                <span class="badge badge-<%= o.estado %>">
+                    <% if(o.estado==='taller'){%>En taller<%}else if(o.estado==='reparacion'){%>Reparando<%}else if(o.estado==='listo'){%>Listo<%}else{%>Entregado<%}%>
+                </span>
+            </td>
+            <td style="font-size:11px;color:#888"><%= new Date(o.fecha_ingreso).toLocaleDateString('es-CL') %></td>
+            <td>
+              <a href="/orden/<%= o.id %>" class="btn-sec" style="padding:3px 8px;font-size:11px">Ver</a>
+            </td>
+          </tr>
+          <% }) %>
+          <% if(ordenes.length === 0) { %>
+          <tr><td colspan="8" style="text-align:center;color:#aaa;padding:20px">No hay órdenes</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Recuperar datos de los elementos ocultos (evita errores de sintaxis EJS en JS)
+    const elMeses = document.getElementById('data-meses');
+    const elFallas = document.getElementById('data-fallas');
+
+    const mesesLabels = JSON.parse(elMeses.getAttribute('data-labels'));
+    const mesesData   = JSON.parse(elMeses.getAttribute('data-values'));
+    const fallasLabels = JSON.parse(elFallas.getAttribute('data-labels'));
+    const fallasData   = JSON.parse(elFallas.getAttribute('data-values'));
+
+    // 2. Gráfico de Barras
+    new Chart(document.getElementById('chart-meses'), {
+        type: 'bar',
+        data: {
+            labels: mesesLabels,
+            datasets: [{ 
+                label: 'Órdenes', 
+                data: mesesData, 
+                backgroundColor: '#185FA5', 
+                borderRadius: 6 
+            }]
+        },
+        options: { 
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }, 
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } 
+        }
+    });
+
+    // 3. Gráfico de Dona
+    new Chart(document.getElementById('chart-fallas'), {
+        type: 'doughnut',
+        data: {
+            labels: fallasLabels,
+            datasets: [{ 
+                data: fallasData, 
+                backgroundColor: ['#185FA5','#3B6D11','#854F0B','#A32D2D','#534AB7','#0F6E56'] 
+            }]
+        },
+        options: { 
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } } 
+        }
+    });
+});
+</script>
+
+</body>
+</html>

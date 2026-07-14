@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presupuesto - <%= cotizacion.codigo %></title>
+  <style>
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #e0e5ec; color: #333; margin: 0; padding: 20px; display: flex; justify-content: center; }
+    .cartola { background: #fff; width: 100%; max-width: 800px; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #185FA5; padding-bottom: 20px; margin-bottom: 30px; }
+    .logo h1 { margin: 0; color: #185FA5; font-size: 28px; letter-spacing: -1px; }
+    .logo p { margin: 5px 0 0; color: #666; font-size: 12px; }
+    .doc-info { text-align: right; }
+    .doc-info h2 { margin: 0; font-size: 20px; color: #555; text-transform: uppercase; }
+    .doc-info p { margin: 5px 0 0; font-size: 14px; font-weight: bold; color: #185FA5; }
+    
+    .section { margin-bottom: 30px; }
+    .section-title { font-size: 14px; font-weight: bold; background: #f5f5f0; padding: 8px 12px; border-left: 4px solid #185FA5; margin-bottom: 15px; color: #333; text-transform: uppercase; }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .info-box { font-size: 13px; line-height: 1.6; }
+    .info-box span { color: #888; display: inline-block; width: 120px; }
+    .info-box strong { color: #111; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+    th { background: #185FA5; color: white; text-align: left; padding: 10px; }
+    td { padding: 10px; border-bottom: 1px solid #eee; }
+    .text-right { text-align: right; }
+    
+    .total-row { font-size: 18px; font-weight: bold; }
+    .total-row td { border-top: 2px solid #333; padding-top: 15px; }
+    
+    .footer { margin-top: 50px; font-size: 11px; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
+    
+    .btn-print { position: fixed; bottom: 30px; right: 30px; background: #185FA5; color: white; border: none; padding: 15px 25px; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(24,95,165,0.4); }
+    .btn-print:hover { background: #145086; }
+    
+    @media print {
+      body { background: white; padding: 0; }
+      .cartola { box-shadow: none; padding: 0; max-width: 100%; }
+      .btn-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cartola">
+  <div class="header">
+    <div class="logo">
+      <h1>YJMRepair Pro</h1>
+      <p>Servicio Técnico Especializado en Dispositivos Móviles</p>
+    </div>
+    <div class="doc-info">
+      <h2>Presupuesto Proforma</h2>
+      <p>N°: <%= cotizacion.codigo %></p>
+      <p style="color:#666; font-size:12px; font-weight:normal;">Fecha Emisión: <%= new Date(cotizacion.fecha_emision).toLocaleDateString('es-CL') %></p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="section">
+      <div class="section-title">Datos del Cliente</div>
+      <div class="info-box">
+        <div><span>Nombre:</span> <strong><%= cotizacion.cliente_nombre %></strong></div>
+        <div><span>Teléfono:</span> <strong><%= cotizacion.cliente_telefono || 'No registrado' %></strong></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Datos del Equipo</div>
+      <div class="info-box">
+        <div><span>Equipo/Modelo:</span> <strong><%= cotizacion.equipo %></strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Detalle de Cotización</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Descripción del Trabajo / Repuestos</th>
+          <th class="text-right">Monto Estimado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><%= cotizacion.falla_descripcion %></td>
+          <td class="text-right">$<%= Number(cotizacion.valor_estimado).toLocaleString('es-CL') %></td>
+        </tr>
+        <tr class="total-row">
+          <td class="text-right">TOTAL PRESUPUESTO:</td>
+          <td class="text-right" style="color:#185FA5;">$<%= Number(cotizacion.valor_estimado).toLocaleString('es-CL') %></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <strong>Términos y Condiciones:</strong> Este documento es un presupuesto estimativo basado en la información proporcionada. Los valores pueden estar sujetos a cambios una vez ingresado el equipo al taller y realizada una revisión técnica profunda. <br>
+    <strong>Validez:</strong> Este presupuesto tiene una validez de 7 días corridos a partir de su fecha de emisión.<br><br>
+    ¡Gracias por cotizar con YJMRepair Pro!
+  </div>
+</div>
+
+<button class="btn-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+
+</body>
+</html>
